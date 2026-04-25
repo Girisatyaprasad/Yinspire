@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
   <title>Live Code · Yinspire</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --radius-g2: 8px;
@@ -639,6 +640,13 @@
     (function () {
       "use strict";
 
+      var supabaseUrl = "https://ewzngjyrwpujstjtbazm.supabase.co";
+      var supabasePublishableKey = "sb_publishable_lT4pB1fWbv5SrY7Mx14VRg_RRJ2GBQq";
+      var supabaseClient =
+        typeof supabase !== "undefined" && supabase.createClient
+          ? supabase.createClient(supabaseUrl, supabasePublishableKey)
+          : null;
+
       var dropZone = document.getElementById("dropZone");
       var folderPicker = document.getElementById("folderPicker");
       var btnChooseFolder = document.getElementById("btnChooseFolder");
@@ -657,6 +665,7 @@
       var blobUrls = [];
       var published = false;
       var hasBundle = false;
+      var currentProjectFileMap = null;
 
       function revokeBlobs() {
         blobUrls.forEach(function (u) {
@@ -769,6 +778,7 @@
       }
 
       function consumeFileMap(map) {
+        currentProjectFileMap = null;
         var indexPath = findIndexPath(map);
         if (!indexPath) {
           console.warn("[Yinspire create] consumeFileMap: no index.html in map, keys sample=", Object.keys(map).slice(0, 12));
@@ -785,6 +795,7 @@
             var srcdoc = buildLiveSrcdoc(htmlText, map, indexPath);
             setPreview(srcdoc);
             hasBundle = true;
+            currentProjectFileMap = map;
             dropStatus.textContent = "Loaded · " + indexPath;
             dropStatus.hidden = false;
             if (!projectTitle.value.trim()) {
@@ -798,11 +809,55 @@
             dropStatus.textContent = "Could not build preview. Check paths and markup.";
             dropStatus.hidden = false;
             hasBundle = false;
+            currentProjectFileMap = null;
             syncPublishButton();
           }
         });
       }
 
+      function publishStorageObjectPath(batchTs, relativeKey) {
+        var rel = String(relativeKey || "").replace(/\\/g, "/").replace(/^\/+/, "");
+        if (!rel || rel.indexOf("..") !== -1) {
+          rel = "asset-" + batchTs + "-" + String(Math.random()).slice(2, 11);
+        }
+        return "publish/" + batchTs + "/" + rel;
+      }
+
+      function uploadProjectMapToSupabase(map) {
+        if (!supabaseClient) {
+          return Promise.reject(new Error("Supabase client unavailable (check CDN script)."));
+        }
+        var keys = Object.keys(map || {});
+        if (!keys.length) {
+          return Promise.reject(new Error("No files in project map."));
+        }
+        var batchTs = Date.now();
+        return Promise.all(
+          keys.map(function (key) {
+            var file = map[key];
+            if (!file || typeof file.arrayBuffer !== "function") {
+              return Promise.resolve();
+            }
+            var storagePath = publishStorageObjectPath(batchTs, key);
+            return supabaseClient.storage
+              .from("project-files")
+              .upload(storagePath, file, { cacheControl: "3600", upsert: true })
+              .then(function (res) {
+                if (res.error) {
+                  throw res.error;
+                }
+                var pub = supabaseClient.storage.from("project-files").getPublicUrl(storagePath);
+                var publicUrl = pub.data && pub.data.publicUrl ? pub.data.publicUrl : "";
+                console.log(
+                  "[Yinspire create] Supabase publish upload ·",
+                  storagePath,
+                  "→",
+                  publicUrl
+                );
+              });
+          })
+        );
+      }
 
       function findIndexPath(map) {
         var keys = Object.keys(map);
@@ -1151,9 +1206,24 @@
         if (btnPublish.disabled) {
           return;
         }
-        published = true;
-        runPublishSuccess();
-        syncPublishButton();
+        if (!currentProjectFileMap) {
+          console.warn("[Yinspire create] Publish Live: no loaded project files.");
+          return;
+        }
+        btnPublish.disabled = true;
+        uploadProjectMapToSupabase(currentProjectFileMap)
+          .then(function () {
+            published = true;
+            runPublishSuccess();
+            console.log("Institutional Asset is Secured");
+            alert("Institutional Asset is Secured");
+          })
+          .catch(function (err) {
+            console.error("[Yinspire create] Publish Live upload failed", err);
+          })
+          .then(function () {
+            syncPublishButton();
+          });
       });
 
       btnExit.addEventListener("click", function () {
