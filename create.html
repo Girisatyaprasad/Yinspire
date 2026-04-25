@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Live Code · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --helv: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --line: #e5e5e5;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: var(--helv);
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--ink);
+      background: #ffffff;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    .create-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 10px max(20px, env(safe-area-inset-right)) 10px max(20px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .create-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .create-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .create-header__exit {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: #007aff;
+      cursor: pointer;
+    }
+
+    .create-header__exit:hover {
+      text-decoration: underline;
+    }
+
+    .create-header__exit:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+      border-radius: var(--radius-g2);
+    }
+
+    .create-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 400px) 1fr;
+      height: 100vh;
+      padding-top: 52px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 880px) {
+      .create-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 46vh) minmax(0, 1fr);
+      }
+    }
+
+    .create-form {
+      border-right: 1px solid rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background: #ffffff;
+    }
+
+    .create-form__scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 48px 32px 120px;
+    }
+
+    .create-title {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+
+    .create-help {
+      margin: 0 0 28px;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .create-drop {
+      min-height: min(52vh, 420px);
+      border: 2px dashed rgba(0, 0, 0, 0.14);
+      border-radius: var(--radius-g2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      text-align: center;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+      background: rgba(250, 250, 252, 0.6);
+    }
+
+    .create-drop:hover,
+    .create-drop:focus-visible {
+      border-color: rgba(0, 0, 0, 0.28);
+      background: rgba(0, 0, 0, 0.02);
+      outline: none;
+    }
+
+    .create-drop.is-drag {
+      border-color: #000000;
+      background: rgba(0, 122, 255, 0.06);
+      transform: scale(1.01);
+    }
+
+    .create-drop__head {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+    }
+
+    .create-drop__sub {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      max-width: 28ch;
+      line-height: 1.45;
+    }
+
+    .create-drop__path {
+      margin-top: 14px;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      word-break: break-all;
+      max-width: 100%;
+    }
+
+    .create-drop__browse {
+      margin-top: 20px;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: #1d1d1f;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .create-drop__browse:hover,
+    .create-drop__browse:focus-visible {
+      border-color: rgba(0, 0, 0, 0.28);
+      background: rgba(0, 0, 0, 0.03);
+      outline: none;
+    }
+
+    .create-drop__input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .create-field {
+      margin-top: 32px;
+    }
+
+    .create-field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .create-field input[type="text"],
+    .create-field select {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 16px;
+      font-weight: 400;
+      padding: 12px 0;
+      border: none;
+      border-radius: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .create-field input:focus,
+    .create-field select:focus {
+      outline: none;
+      border-bottom-color: #000000;
+    }
+
+    .create-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      min-height: 40px;
+    }
+
+    .create-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: var(--radius-g2);
+      background: rgba(0, 0, 0, 0.06);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .create-tag button {
+      border: none;
+      background: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      color: var(--muted);
+    }
+
+    .create-publish-wrap {
+      flex-shrink: 0;
+      padding: 16px 32px max(20px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    .create-publish {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      padding: 20px 28px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.2s ease;
+    }
+
+    .create-publish:hover:not(:disabled) {
+      opacity: 0.94;
+    }
+
+    .create-publish:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .create-publish:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .create-publish:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .create-stage {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background: #fafafa;
+    }
+
+    .create-toolbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      background: #ffffff;
+    }
+
+    .create-toolbar__hint {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .create-viewports {
+      display: flex;
+      gap: 4px;
+    }
+
+    .create-viewports button {
+      font-family: var(--helv);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: var(--radius-g2);
+      border: 1px solid transparent;
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .create-viewports button.is-active {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .create-viewports button:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 1px;
+    }
+
+    .create-preview-host {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .create-preview-frame {
+      width: 100%;
+      max-width: 100%;
+      height: min(78vh, 920px);
+      min-height: 360px;
+      background: #ffffff;
+      border-radius: var(--radius-g2);
+      box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 20px 50px -28px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      will-change: transform, width;
+      transition: width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), max-width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .create-preview-frame[data-view="tablet"] {
+      width: 768px;
+      max-width: 100%;
+    }
+
+    .create-preview-frame[data-view="mobile"] {
+      width: 375px;
+      max-width: 100%;
+    }
+
+    .create-preview-frame iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 360px;
+      border: none;
+      background: #ffffff;
+    }
+
+    .publish-success {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .publish-success.is-on {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .publish-success__ring {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #34c759 0%, #28a745 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 16px 48px -12px rgba(52, 199, 89, 0.55);
+      transform: scale(0.2);
+      opacity: 0;
+    }
+
+    .publish-success.is-animate .publish-success__ring {
+      animation: sentPop 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes sentPop {
+      0% {
+        transform: scale(0.2);
+        opacity: 0;
+      }
+      55% {
+        transform: scale(1.08);
+        opacity: 1;
+      }
+      78% {
+        transform: scale(0.96);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .publish-success__check {
+      width: 36px;
+      height: 36px;
+      stroke: #ffffff;
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+    }
+
+    .publish-success.is-animate .publish-success__check {
+      animation: sentDraw 0.45s 0.2s ease forwards;
+    }
+
+    @keyframes sentDraw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .publish-success__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .publish-success__content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .publish-success__msg {
+      margin: 22px 0 0;
+      font-family: var(--helv);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #1d1d1f;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .publish-success.is-animate .publish-success__msg {
+      animation: sentFade 0.4s 0.35s ease forwards;
+    }
+
+    @keyframes sentFade {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="create-header">
+    <a class="create-header__wordmark" href="index.html">Yinspire</a>
+    <button type="button" class="create-header__exit" id="btnExit">Exit</button>
+  </header>
+
+  <div class="create-grid">
+    <aside class="create-form" aria-label="Project details">
+      <div class="create-form__scroll">
+        <h1 class="create-title">Give your creation a name.</h1>
+        <p class="create-help">Drop a project folder. We detect <strong>index.html</strong>, wire CSS &amp; JS, and render live in the preview.</p>
+
+        <input
+          type="file"
+          id="folderPicker"
+          multiple
+          webkitdirectory
+          directory
+          class="create-drop__input"
+          aria-hidden="true"
+          tabindex="-1"
+        />
+
+        <div
+          id="dropZone"
+          class="create-drop"
+          tabindex="0"
+          role="region"
+          aria-label="Project folder drop zone"
+        >
+          <p class="create-drop__head">Drop project folder</p>
+          <p class="create-drop__sub">Release anywhere here. Entry must include index.html; linked styles and scripts resolve automatically.</p>
+          <p id="dropStatus" class="create-drop__path" hidden></p>
+          <button type="button" class="create-drop__browse" id="btnChooseFolder">
+            Choose folder…
+          </button>
+        </div>
+
+        <div class="create-field">
+          <label for="projectTitle">Title</label>
+          <input id="projectTitle" type="text" autocomplete="off" placeholder="My component" />
+        </div>
+
+        <div class="create-field">
+          <label for="tagInput">Tags</label>
+          <input id="tagInput" type="text" autocomplete="off" placeholder="Navigation, Hero, Button — comma or Enter" />
+          <div id="tagChips" class="create-tags" aria-live="polite"></div>
+        </div>
+
+        <div class="create-field">
+          <label for="collectionSelect">Collection</label>
+          <select id="collectionSelect">
+            <option value="">Choose a series…</option>
+            <option value="frictionless">The Frictionless Series</option>
+            <option value="heavyweight">The Heavyweight Archive</option>
+            <option value="neural">The Neural Bounce</option>
+            <option value="overlays">Standardized Overlays</option>
+          </select>
+        </div>
+      </div>
+      <div class="create-publish-wrap">
+        <button type="button" class="create-publish" id="btnPublish" disabled>Publish Live</button>
+      </div>
+    </aside>
+
+    <section class="create-stage" aria-label="Live preview">
+      <div class="create-toolbar">
+        <span class="create-toolbar__hint">Live preview · sandboxed</span>
+        <div class="create-viewports" role="radiogroup" aria-label="Viewport">
+          <button type="button" class="is-active" data-view="desktop" aria-checked="true">Desktop</button>
+          <button type="button" data-view="tablet" aria-checked="false">Tablet</button>
+          <button type="button" data-view="mobile" aria-checked="false">Mobile</button>
+        </div>
+      </div>
+      <div class="create-preview-host">
+        <div class="create-preview-frame" id="previewFrame" data-view="desktop">
+          <iframe id="liveFrame" title="Live preview" sandbox="allow-scripts allow-same-origin" srcdoc=""></iframe>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="publishSuccess" class="publish-success" aria-hidden="true">
+    <div class="publish-success__backdrop"></div>
+    <div class="publish-success__content">
+      <div class="publish-success__ring" aria-hidden="true">
+        <svg class="publish-success__check" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M8 16 L14 22 L24 10" />
+        </svg>
+      </div>
+      <p class="publish-success__msg">Sent to Yinspire</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var dropZone = document.getElementById("dropZone");
+      var folderPicker = document.getElementById("folderPicker");
+      var btnChooseFolder = document.getElementById("btnChooseFolder");
+      var dropStatus = document.getElementById("dropStatus");
+      var projectTitle = document.getElementById("projectTitle");
+      var tagInput = document.getElementById("tagInput");
+      var tagChips = document.getElementById("tagChips");
+      var collectionSelect = document.getElementById("collectionSelect");
+      var btnPublish = document.getElementById("btnPublish");
+      var btnExit = document.getElementById("btnExit");
+      var liveFrame = document.getElementById("liveFrame");
+      var previewFrame = document.getElementById("previewFrame");
+      var publishSuccess = document.getElementById("publishSuccess");
+
+      var tags = [];
+      var blobUrls = [];
+      var published = false;
+      var hasBundle = false;
+
+      function revokeBlobs() {
+        blobUrls.forEach(function (u) {
+          try {
+            URL.revokeObjectURL(u);
+          } catch (e) {}
+        });
+        blobUrls = [];
+      }
+
+      function readAllEntries(dirReader) {
+        return new Promise(function (resolve, reject) {
+          var acc = [];
+          function read() {
+            dirReader.readEntries(
+              function (entries) {
+                if (!entries.length) {
+                  resolve(acc);
+                  return;
+                }
+                acc.push.apply(acc, entries);
+                read();
+              },
+              reject
+            );
+          }
+          read();
+        });
+      }
+
+      function fileFromEntry(fileEntry) {
+        return new Promise(function (resolve, reject) {
+          fileEntry.file(resolve, reject);
+        });
+      }
+
+      function walkDirectory(dirEntry, pathPrefix) {
+        return readAllEntries(dirEntry.createReader()).then(function (entries) {
+          return Promise.all(
+            entries.map(function (child) {
+              if (child.isFile) {
+                return fileFromEntry(child).then(function (file) {
+                  return [{ path: pathPrefix + child.name, file: file }];
+                });
+              }
+              if (child.isDirectory) {
+                return walkDirectory(child, pathPrefix + child.name + "/");
+              }
+              return [];
+            })
+          ).then(function (chunks) {
+            var flat = [];
+            chunks.forEach(function (c) {
+              flat.push.apply(flat, c);
+            });
+            return flat;
+          });
+        });
+      }
+
+      function mapFromFileList(files) {
+        var acc = Object.create(null);
+        var i;
+        for (i = 0; i < files.length; i++) {
+          var f = files[i];
+          var rp = f.webkitRelativePath;
+          if (rp) {
+            acc[rp.replace(/\\/g, "/")] = f;
+          } else {
+            acc[f.name] = f;
+          }
+        }
+        return acc;
+      }
+
+      function buildFileMap(dt) {
+        console.log("[Yinspire create] buildFileMap: items=", dt.items ? dt.items.length : 0, "files=", dt.files ? dt.files.length : 0);
+        var acc = Object.create(null);
+        var items = dt.items;
+        var i;
+        for (i = 0; i < items.length; i++) {
+          var it = items[i];
+          var entry = it.webkitGetAsEntry && it.webkitGetAsEntry();
+          if (!entry) {
+            continue;
+          }
+          if (entry.isFile) {
+            return fileFromEntry(entry).then(function (file) {
+              acc[entry.name] = file;
+              console.log("[Yinspire create] buildFileMap: single file entry, keys=", Object.keys(acc).length);
+              return acc;
+            });
+          }
+          if (entry.isDirectory) {
+            return walkDirectory(entry, entry.name + "/").then(function (list) {
+              list.forEach(function (o) {
+                acc[o.path] = o.file;
+              });
+              console.log("[Yinspire create] buildFileMap: directory walk, keys=", Object.keys(acc).length);
+              return acc;
+            });
+          }
+        }
+        var merged = mapFromFileList(dt.files);
+        Object.keys(merged).forEach(function (k) {
+          acc[k] = merged[k];
+        });
+        console.log("[Yinspire create] buildFileMap: from FileList fallback, keys=", Object.keys(acc).length);
+        return Promise.resolve(acc);
+      }
+
+      function consumeFileMap(map) {
+        var indexPath = findIndexPath(map);
+        if (!indexPath) {
+          console.warn("[Yinspire create] consumeFileMap: no index.html in map, keys sample=", Object.keys(map).slice(0, 12));
+          dropStatus.textContent = "No index.html found in the drop. Include an entry HTML file.";
+          dropStatus.hidden = false;
+          hasBundle = false;
+          syncPublishButton();
+          return;
+        }
+        var indexFile = map[indexPath];
+        console.log("[Yinspire create] consumeFileMap: indexPath=", indexPath, "file name=", indexFile && indexFile.name, "size=", indexFile && indexFile.size);
+        indexFile.text().then(function (htmlText) {
+          try {
+            var srcdoc = buildLiveSrcdoc(htmlText, map, indexPath);
+            setPreview(srcdoc);
+            hasBundle = true;
+            dropStatus.textContent = "Loaded · " + indexPath;
+            dropStatus.hidden = false;
+            if (!projectTitle.value.trim()) {
+              var folderGuess = indexPath.split("/")[0] || "Project";
+              projectTitle.value = folderGuess;
+            }
+            syncPublishButton();
+            console.log("[Yinspire create] consumeFileMap: preview OK");
+          } catch (err) {
+            console.error("[Yinspire create] consumeFileMap: build preview error", err);
+            dropStatus.textContent = "Could not build preview. Check paths and markup.";
+            dropStatus.hidden = false;
+            hasBundle = false;
+            syncPublishButton();
+          }
+        });
+      }
+
+
+      function findIndexPath(map) {
+        var keys = Object.keys(map);
+        var k;
+        for (k = 0; k < keys.length; k++) {
+          if (/\/index\.html$/i.test(keys[k]) || /^index\.html$/i.test(keys[k])) {
+            return keys[k];
+          }
+        }
+        return null;
+      }
+
+      function dirname(p) {
+        var ix = p.lastIndexOf("/");
+        return ix === -1 ? "" : p.slice(0, ix + 1);
+      }
+
+      function normalizePath(baseDir, rel) {
+        rel = String(rel || "").trim();
+        if (!rel || /^[a-z+]+:/i.test(rel)) {
+          return null;
+        }
+        var base = baseDir.split("/").filter(Boolean);
+        var parts = rel.split("/");
+        var pi;
+        for (pi = 0; pi < parts.length; pi++) {
+          var seg = parts[pi];
+          if (seg === "..") {
+            base.pop();
+          } else if (seg && seg !== ".") {
+            base.push(seg);
+          }
+        }
+        return base.join("/");
+      }
+
+      function lookupFile(map, baseDir, href) {
+        var n = normalizePath(baseDir, href);
+        if (!n) {
+          return null;
+        }
+        if (map[n]) {
+          return map[n];
+        }
+        var keys = Object.keys(map);
+        var ki;
+        for (ki = 0; ki < keys.length; ki++) {
+          if (keys[ki].replace(/\\/g, "/").endsWith(n)) {
+            return map[keys[ki]];
+          }
+        }
+        return null;
+      }
+
+      function buildLiveSrcdoc(htmlText, map, indexPath) {
+        revokeBlobs();
+        var baseDir = dirname(indexPath);
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(htmlText, "text/html");
+
+        doc.querySelectorAll('link[rel*="stylesheet"]').forEach(function (link) {
+          var href = link.getAttribute("href");
+          if (!href || /^[a-z+]+:/i.test(href)) {
+            return;
+          }
+          var file = lookupFile(map, baseDir, href);
+          if (!file) {
+            link.remove();
+            return;
+          }
+          var url = URL.createObjectURL(file);
+          blobUrls.push(url);
+          link.setAttribute("href", url);
+        });
+
+        doc.querySelectorAll("script[src]").forEach(function (sc) {
+          var src = sc.getAttribute("src");
+          if (!src || /^[a-z+]+:/i.test(src)) {
+            return;
+          }
+          var file = lookupFile(map, baseDir, src);
+          if (!file) {
+            return;
+          }
+          var url = URL.createObjectURL(file);
+          blobUrls.push(url);
+          sc.setAttribute("src", url);
+        });
+
+        doc.querySelectorAll("img[src]").forEach(function (im) {
+          var src = im.getAttribute("src");
+          if (!src || /^[a-z+]+:/i.test(src) || src.indexOf("data:") === 0) {
+            return;
+          }
+          var file = lookupFile(map, baseDir, src);
+          if (!file) {
+            return;
+          }
+          var url = URL.createObjectURL(file);
+          blobUrls.push(url);
+          im.setAttribute("src", url);
+        });
+
+        return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+      }
+
+      function setPreview(htmlSrcdoc) {
+        liveFrame.removeAttribute("src");
+        liveFrame.srcdoc = htmlSrcdoc;
+      }
+
+      function playSentSound() {
+        try {
+          var Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) {
+            return;
+          }
+          var ctx = new Ctx();
+          var o = ctx.createOscillator();
+          var g = ctx.createGain();
+          o.type = "sine";
+          o.frequency.setValueAtTime(880, ctx.currentTime);
+          o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
+          g.gain.setValueAtTime(0.0001, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+          o.connect(g);
+          g.connect(ctx.destination);
+          o.start();
+          o.stop(ctx.currentTime + 0.24);
+          window.setTimeout(function () {
+            ctx.close();
+          }, 400);
+        } catch (e) {}
+      }
+
+      function runPublishSuccess() {
+        publishSuccess.classList.add("is-on");
+        publishSuccess.setAttribute("aria-hidden", "false");
+        publishSuccess.offsetHeight;
+        publishSuccess.classList.add("is-animate");
+        playSentSound();
+        window.setTimeout(function () {
+          publishSuccess.classList.remove("is-on", "is-animate");
+          publishSuccess.setAttribute("aria-hidden", "true");
+        }, 2200);
+      }
+
+      function syncPublishButton() {
+        var t = projectTitle.value.trim();
+        var c = collectionSelect.value;
+        btnPublish.disabled = !(hasBundle && t.length >= 1 && c);
+      }
+
+      function isDirty() {
+        if (published) {
+          return false;
+        }
+        if (hasBundle) {
+          return true;
+        }
+        if (projectTitle.value.trim()) {
+          return true;
+        }
+        if (collectionSelect.value) {
+          return true;
+        }
+        if (tags.length) {
+          return true;
+        }
+        return false;
+      }
+
+      function escAttr(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderTags() {
+        tagChips.innerHTML = tags
+          .map(function (t) {
+            return (
+              '<span class="create-tag">' +
+              escAttr(t) +
+              '<button type="button" data-tag-enc="' +
+              encodeURIComponent(t) +
+              '" aria-label="Remove tag">&times;</button></span>'
+            );
+          })
+          .join("");
+      }
+
+      tagChips.addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-tag-enc]");
+        if (!b || !tagChips.contains(b)) {
+          return;
+        }
+        var raw = "";
+        try {
+          raw = decodeURIComponent(b.getAttribute("data-tag-enc") || "");
+        } catch (eDec) {
+          raw = "";
+        }
+        tags = tags.filter(function (t) {
+          return t !== raw;
+        });
+        renderTags();
+      });
+
+      function addTagsFromString(s) {
+        String(s || "")
+          .split(/[,]+/)
+          .map(function (x) {
+            return x.trim();
+          })
+          .filter(Boolean)
+          .forEach(function (x) {
+            if (tags.indexOf(x) === -1) {
+              tags.push(x);
+            }
+          });
+        renderTags();
+      }
+
+      function setDropEffectCopy(e) {
+        if (e.dataTransfer) {
+          try {
+            e.dataTransfer.dropEffect = "copy";
+          } catch (eDt) {}
+        }
+      }
+
+      dropZone.addEventListener("dragenter", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        setDropEffectCopy(e);
+        console.log("[Yinspire create] dragenter");
+      });
+
+      dropZone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        setDropEffectCopy(e);
+        dropZone.classList.add("is-drag");
+      });
+
+      dropZone.addEventListener("dragleave", function (e) {
+        var rt = e.relatedTarget;
+        if (rt && dropZone.contains(rt)) {
+          return;
+        }
+        dropZone.classList.remove("is-drag");
+      });
+
+      dropZone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("is-drag");
+        published = false;
+        console.log("[Yinspire create] drop: types=", e.dataTransfer && e.dataTransfer.types ? Array.prototype.slice.call(e.dataTransfer.types) : []);
+        buildFileMap(e.dataTransfer)
+          .then(function (map) {
+            consumeFileMap(map);
+          })
+          .catch(function (err) {
+            console.error("[Yinspire create] buildFileMap rejected", err);
+            dropStatus.textContent = "Could not read dropped files. Try Choose folder… instead.";
+            dropStatus.hidden = false;
+            hasBundle = false;
+            syncPublishButton();
+          });
+      });
+
+      function openFolderPicker() {
+        console.log("[Yinspire create] openFolderPicker");
+        folderPicker.click();
+      }
+
+      btnChooseFolder.addEventListener("click", function (e) {
+        e.stopPropagation();
+        openFolderPicker();
+      });
+
+      dropZone.addEventListener("click", function (e) {
+        if (e.target.closest && e.target.closest("a")) {
+          return;
+        }
+        if (e.target === btnChooseFolder || (btnChooseFolder && btnChooseFolder.contains(e.target))) {
+          return;
+        }
+        openFolderPicker();
+      });
+
+      folderPicker.addEventListener("change", function () {
+        var files = folderPicker.files;
+        if (!files || !files.length) {
+          console.log("[Yinspire create] folderPicker change: no files");
+          return;
+        }
+        published = false;
+        console.log("[Yinspire create] folderPicker: captured", files.length, "files (first:", files[0] && files[0].name, "rel:", files[0] && files[0].webkitRelativePath, ")");
+        var map = mapFromFileList(files);
+        consumeFileMap(map);
+        folderPicker.value = "";
+      });
+
+      dropZone.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openFolderPicker();
+        }
+      });
+
+      projectTitle.addEventListener("input", syncPublishButton);
+      collectionSelect.addEventListener("change", syncPublishButton);
+
+      tagInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addTagsFromString(tagInput.value);
+          tagInput.value = "";
+        }
+      });
+      tagInput.addEventListener("blur", function () {
+        if (tagInput.value.trim()) {
+          addTagsFromString(tagInput.value);
+          tagInput.value = "";
+        }
+      });
+
+      document.querySelectorAll(".create-viewports button").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var v = btn.getAttribute("data-view") || "desktop";
+          previewFrame.setAttribute("data-view", v);
+          document.querySelectorAll(".create-viewports button").forEach(function (b) {
+            var on = b === btn;
+            b.classList.toggle("is-active", on);
+            b.setAttribute("aria-checked", on ? "true" : "false");
+          });
+        });
+      });
+
+      btnPublish.addEventListener("click", function () {
+        if (btnPublish.disabled) {
+          return;
+        }
+        published = true;
+        runPublishSuccess();
+        syncPublishButton();
+      });
+
+      btnExit.addEventListener("click", function () {
+        if (isDirty()) {
+          if (!window.confirm("Changes wont be saved. Are you sure?")) {
+            return;
+          }
+        }
+        window.location.href = "index.html";
+      });
+
+      window.addEventListener("beforeunload", function (e) {
+        if (!isDirty()) {
+          return;
+        }
+        e.preventDefault();
+        e.returnValue = "";
+      });
+
+      syncPublishButton();
+    })();
+  </script>
+</body>
+</html>

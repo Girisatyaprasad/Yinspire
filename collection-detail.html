@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <title>Series · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --label-grey: #86868b;
+      --apple-grey: #f5f5f7;
+      --header-h: 64px;
+      --gutter: 24px;
+      --series-gap: 18px;
+      --helv: Helvetica, Arial, "Helvetica Neue", sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--helv);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    body.router-project-open {
+      overflow: hidden;
+    }
+
+    #gravity-cloth {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      opacity: 0.05;
+    }
+
+    @media (max-width: 767px) {
+      #gravity-cloth {
+        display: none;
+      }
+    }
+
+    .shell-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px clamp(16px, 3vw, 32px);
+      min-height: var(--header-h);
+      padding: 10px max(28px, env(safe-area-inset-right)) 10px max(28px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__left {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .shell-header__center {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .shell-header__wordmark:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-matrix {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(10px, 1.5vw, 22px);
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .shell-matrix::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shell-matrix__link {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 6px;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-matrix__link:hover {
+      color: var(--muted);
+    }
+
+    .shell-matrix__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-matrix__link:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-search {
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+    }
+
+    .shell-search-hero {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding: 36px var(--gutter) 8px;
+      box-sizing: border-box;
+    }
+
+    .shell-search-hero .shell-search {
+      width: 440px;
+      max-width: min(440px, 100%);
+    }
+
+    .shell-search__input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: #1d1d1f;
+    }
+
+    .shell-search__input::placeholder {
+      color: var(--label-grey);
+    }
+
+    .shell-header__right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px 12px;
+      min-width: 0;
+    }
+
+    .shell-workspace {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-workspace:hover {
+      border-color: rgba(0, 0, 0, 0.22);
+    }
+
+    .shell-workspace[aria-current="page"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .shell-workspace:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .shell-header__link--identity {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 12px;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .shell-header__link--identity:hover {
+      color: var(--muted);
+    }
+
+    .shell-header__link--identity.shell-header__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-header__link--identity:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-header__create {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .shell-header__create:hover {
+      opacity: 0.9;
+    }
+
+    .shell-header__create:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .shell-main {
+      position: relative;
+      z-index: 10;
+      padding-top: var(--header-h);
+      min-height: 100vh;
+      background: transparent;
+    }
+
+    #app-router {
+      position: relative;
+      min-height: calc(100vh - var(--header-h));
+      overflow-x: hidden;
+    }
+
+    .series-stage {
+      transition: transform 0.42s var(--ease), opacity 0.42s var(--ease);
+      transform: scale(1) translateZ(0);
+      opacity: 1;
+    }
+
+    #app-router.is-project .series-stage {
+      transform: scale(0.96);
+      opacity: 0.12;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .series-back {
+      display: inline-block;
+      margin: 0 0 28px;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .series-back:hover {
+      color: var(--ink);
+    }
+
+    .series-back:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 4px;
+      border-radius: var(--radius-g2);
+    }
+
+    .series-hero {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 40px max(40px, env(safe-area-inset-left)) 28px max(40px, env(safe-area-inset-right));
+    }
+
+    .series-hero__title {
+      margin: 0;
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      line-height: 1.05;
+      color: var(--ink);
+    }
+
+    .series-hero__desc {
+      margin: 20px 0 0;
+      max-width: 600px;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--label-grey);
+    }
+
+    .series-hero__stats {
+      margin: 24px 0 0;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      opacity: 0.85;
+    }
+
+    .series-hero__stats span {
+      margin: 0 0.35em;
+      color: rgba(0, 0, 0, 0.28);
+      font-weight: 300;
+    }
+
+    .series-hero__stats span:first-child {
+      margin-left: 0;
+    }
+
+    .filter-bar {
+      position: sticky;
+      top: var(--header-h);
+      z-index: 40;
+      margin: 0 auto;
+      max-width: 1440px;
+      padding: 14px max(40px, env(safe-area-inset-left)) 16px max(40px, env(safe-area-inset-right));
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .filter-bar__inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+    }
+
+    .filter-bar__label {
+      width: 100%;
+      margin: 0 0 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--label-grey);
+    }
+
+    .filter-chip {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+    }
+
+    .filter-chip:hover {
+      border-color: rgba(0, 0, 0, 0.18);
+    }
+
+    .filter-chip:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .filter-chip[aria-pressed="true"] {
+      background: #1d1d1f;
+      border-color: #1d1d1f;
+      color: #ffffff;
+    }
+
+    .series-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--series-gap);
+      padding: 8px max(40px, env(safe-area-inset-left)) 120px max(40px, env(safe-area-inset-right));
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1100px) {
+      .series-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .series-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .series-cell {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .series-cell:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 4px;
+      border-radius: var(--radius-g2);
+    }
+
+    .series-cell[hidden] {
+      display: none !important;
+    }
+
+    .series-cell__frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: var(--radius-g2);
+      background: var(--apple-grey);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease);
+      transform: scale(1) translateZ(0);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75) inset, 0 8px 24px -14px rgba(0, 0, 0, 0.12);
+    }
+
+    .series-cell:hover .series-cell__frame,
+    .series-cell:focus-visible .series-cell__frame {
+      transform: scale(1.012) translateY(-2px);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 16px 40px -18px rgba(0, 0, 0, 0.16);
+    }
+
+    .series-cell__frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    .series-cell__token {
+      margin: 10px 0 0;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .series-cell__physics {
+      margin: 4px 0 0;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+
+    /* —— Spec sheet overlay (index-aligned) —— */
+    .project-overlay {
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      background: #ffffff;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      transform: translate3d(100%, 0, 0);
+      transition: transform 0.46s var(--ease);
+      will-change: auto;
+    }
+
+    #app-router.is-project #project-overlay {
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+    }
+
+    .project-overlay__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px var(--gutter) 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .project-overlay__close {
+      font-family: var(--helv);
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.06);
+      color: #1d1d1f;
+      cursor: pointer;
+    }
+
+    .project-overlay__close:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .project-overlay__close:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .project-overlay__back {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.06);
+      color: #1d1d1f;
+      cursor: pointer;
+    }
+
+    .project-overlay__back:hover {
+      background: rgba(0, 0, 0, 0.09);
+    }
+
+    .project-overlay__back:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .project-overlay__theater {
+      position: relative;
+      width: 100vw;
+      left: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      background: #f5f5f7;
+    }
+
+    .project-overlay__viewport {
+      position: relative;
+      width: 100%;
+      max-height: min(85vh, 960px);
+      aspect-ratio: 16 / 9;
+      margin: 0 auto;
+      background: #ebebed;
+      overflow: hidden;
+    }
+
+    .project-overlay__canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      vertical-align: top;
+    }
+
+    .project-overlay__xray {
+      position: absolute;
+      right: max(12px, env(safe-area-inset-right));
+      bottom: max(12px, env(safe-area-inset-bottom));
+      z-index: 3;
+      font-family: var(--helv);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      background: rgba(255, 255, 255, 0.92);
+      color: #1d1d1f;
+      cursor: pointer;
+    }
+
+    .project-overlay__xray[aria-pressed="true"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .project-overlay__xray:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .project-overlay__spec {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: 1200px;
+      margin: 0 auto;
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .project-overlay__spec-cell {
+      padding: 18px 20px;
+      border-left: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .project-overlay__spec-cell:first-child {
+      border-left: none;
+    }
+
+    @media (max-width: 720px) {
+      .project-overlay__spec {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .project-overlay__spec-cell:nth-child(1),
+      .project-overlay__spec-cell:nth-child(2) {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      }
+
+      .project-overlay__spec-cell:nth-child(2),
+      .project-overlay__spec-cell:nth-child(4) {
+        border-left: 1px solid rgba(0, 0, 0, 0.12);
+      }
+    }
+
+    .project-overlay__spec-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .project-overlay__spec-value {
+      display: block;
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #1d1d1f;
+    }
+
+    .project-overlay__spec-value--justice {
+      font-weight: 700;
+    }
+
+    .project-overlay__body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 36px var(--gutter) 28px;
+    }
+
+    .project-overlay__token {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--label-grey);
+    }
+
+    .project-overlay__eyebrow {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .project-overlay__logic-heading {
+      margin: 0 0 14px;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: #1d1d1f;
+    }
+
+    .project-overlay__logic-body {
+      margin: 0;
+      max-width: 600px;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #424245;
+    }
+
+    .project-overlay__cta {
+      padding: 28px var(--gutter) max(48px, env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-open-player {
+      display: block;
+      width: 100%;
+      max-width: 560px;
+      text-align: center;
+      font-family: var(--helv);
+      font-size: 17px;
+      font-weight: 600;
+      padding: 22px 40px;
+      border-radius: 999px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-open-player:hover {
+      opacity: 0.94;
+    }
+
+    .btn-open-player:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .series-stage,
+      .project-overlay {
+        transition-duration: 0.01ms;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gravity-cloth" aria-hidden="true"></canvas>
+  <header class="shell-header" aria-label="Primary">
+    <div class="shell-header__left">
+      <a class="shell-header__wordmark" href="index.html#discovery" id="wordmark">Yinspire</a>
+    </div>
+    <div class="shell-header__center">
+      <nav class="shell-matrix" aria-label="The Matrix">
+        <a class="shell-matrix__link" href="index.html#discovery" id="navHome" title="The curated Final standard">Home</a>
+        <a class="shell-matrix__link" href="community.html" title="WIP and social playground">Community</a>
+        <a
+          class="shell-matrix__link shell-matrix__link--active"
+          href="collection.html"
+          aria-current="page"
+          title="Your collections and series"
+          >Library</a>
+        <a class="shell-matrix__link" href="search.html" title="Search Matrix — physics and feeling">Search</a>
+        <a class="shell-matrix__link" href="activity.html" title="Activity hub — audits, mentions, series">Activity</a>
+        <a class="shell-matrix__link" href="docs.html" title="Laws of Motion">Docs</a>
+      </nav>
+    </div>
+    <div class="shell-header__right">
+      <a href="teams.html" class="shell-workspace" id="headerWorkspace" hidden data-workspace-link>Workspace</a>
+      <a class="shell-header__link--identity" href="profile.html" id="navProfile">Profile</a>
+      <button type="button" class="shell-header__create" id="headerCreateBtn">Create</button>
+    </div>
+  </header>
+
+  <script>
+    (function () {
+      var KEY = "yinspire_verified_team_v1";
+      function syncWorkspaceNav() {
+        var el = document.getElementById("headerWorkspace");
+        if (!el) return;
+        var on = false;
+        try {
+          on = !!localStorage.getItem(KEY);
+        } catch (e) {}
+        el.hidden = !on;
+        var onTeams = /teams\.html/i.test(window.location.pathname + window.location.href);
+        if (on && onTeams) el.setAttribute("aria-current", "page");
+        else el.removeAttribute("aria-current");
+      }
+      syncWorkspaceNav();
+      window.addEventListener("storage", syncWorkspaceNav);
+      window.addEventListener("yinspire-team-changed", syncWorkspaceNav);
+    })();
+  </script>
+
+  <main class="shell-main">
+    <div class="shell-search-hero" role="search">
+      <form class="shell-search" action="search.html" method="get">
+        <label class="visually-hidden" for="shellSearch">Search</label>
+        <input
+          id="shellSearch"
+          name="q"
+          class="shell-search__input"
+          type="search"
+          placeholder="Filter series by token or physics…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </form>
+    </div>
+    <div id="app-router" class="app-router">
+      <div class="series-stage" id="seriesStage">
+        <div class="series-hero">
+          <a class="series-back" href="collection.html">← Back to Library</a>
+          <h1 class="series-hero__title" id="seriesTitle">The Frictionless Series</h1>
+          <p class="series-hero__desc" id="seriesDesc">
+            A study in zero-latency interaction and momentum-based physics.
+          </p>
+          <p class="series-hero__stats" id="seriesStats"></p>
+        </div>
+
+        <nav class="filter-bar" aria-label="Physics filter">
+          <div class="filter-bar__inner">
+            <p class="filter-bar__label">Institutional search</p>
+            <button type="button" class="filter-chip" data-filter="all" aria-pressed="true">All Physics</button>
+            <button type="button" class="filter-chip" data-filter="high-mass" aria-pressed="false">High Mass</button>
+            <button type="button" class="filter-chip" data-filter="low-friction" aria-pressed="false">Low Friction</button>
+            <button type="button" class="filter-chip" data-filter="spring" aria-pressed="false">Spring-Based</button>
+          </div>
+        </nav>
+
+        <div class="series-grid" id="seriesGrid" role="list"></div>
+      </div>
+
+      <article id="project-overlay" class="project-overlay" aria-hidden="true">
+        <div class="project-overlay__top">
+          <button type="button" class="project-overlay__back" id="btnBackSeries">← Series</button>
+          <button type="button" class="project-overlay__close" id="btnCloseProject" aria-label="Close">×</button>
+        </div>
+        <div class="project-overlay__theater">
+          <div class="project-overlay__viewport" id="projectHeroViewport">
+            <canvas id="heroPhysics" class="project-overlay__canvas" width="1600" height="900" aria-hidden="true"></canvas>
+            <button type="button" class="project-overlay__xray" id="btnXray" aria-pressed="false">X-Ray</button>
+          </div>
+        </div>
+        <div class="project-overlay__spec" role="list">
+          <div class="project-overlay__spec-cell" role="listitem">
+            <span class="project-overlay__spec-label">Physics Law</span>
+            <span class="project-overlay__spec-value" id="specLaw">—</span>
+          </div>
+          <div class="project-overlay__spec-cell" role="listitem">
+            <span class="project-overlay__spec-label">Stiffness</span>
+            <span class="project-overlay__spec-value" id="specStiffness">—</span>
+          </div>
+          <div class="project-overlay__spec-cell" role="listitem">
+            <span class="project-overlay__spec-label">Mass</span>
+            <span class="project-overlay__spec-value" id="specMass">—</span>
+          </div>
+          <div class="project-overlay__spec-cell" role="listitem">
+            <span class="project-overlay__spec-label">Justice Score</span>
+            <span class="project-overlay__spec-value project-overlay__spec-value--justice" id="specJustice">—</span>
+          </div>
+        </div>
+        <div class="project-overlay__body">
+          <p class="project-overlay__token" id="projectToken"></p>
+          <p class="project-overlay__eyebrow" id="projectEyebrow"></p>
+          <h2 class="project-overlay__logic-heading">Spec Sheet</h2>
+          <p id="projectLogicBody" class="project-overlay__logic-body"></p>
+        </div>
+        <div class="project-overlay__cta">
+          <button type="button" class="btn-open-player" id="openPlayerBtn">Open in Player</button>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var PHOTO = "assets/image_a1ca9e.jpg";
+      var IMG_POS = [
+        "10% 50%", "35% 48%", "58% 52%", "82% 50%", "22% 55%", "48% 42%", "72% 48%", "15% 45%", "55% 50%", "88% 48%",
+        "30% 50%", "65% 46%"
+      ];
+
+      var SERIES_BY_SLUG = {
+        frictionless: {
+          slug: "frictionless",
+          title: "The Frictionless Series",
+          desc: "A study in zero-latency interaction and momentum-based physics.",
+          stats: { patterns: 12, justice: "98.4%", curator: "Prasad" },
+          patterns: [
+            { id: 1, token: "F-01-Spring", title: "Ingress spring", physics: ["spring", "low-friction"], imgI: 0 },
+            { id: 2, token: "F-02-Low", title: "Linear glide", physics: ["low-friction"], imgI: 1 },
+            { id: 3, token: "F-03-Spring", title: "Momentum handoff", physics: ["spring", "high-mass"], imgI: 2 },
+            { id: 4, token: "F-04-Heavy", title: "Settling mass", physics: ["high-mass"], imgI: 3 },
+            { id: 5, token: "F-05-Low", title: "Zero-latency tap", physics: ["low-friction", "spring"], imgI: 4 },
+            { id: 6, token: "F-06-Spring", title: "Oscillation cap", physics: ["spring"], imgI: 5 },
+            { id: 7, token: "F-07-Heavy", title: "Damped corridor", physics: ["high-mass", "low-friction"], imgI: 6 },
+            { id: 8, token: "F-08-Low", title: "Frictionless sheet", physics: ["low-friction"], imgI: 7 },
+            { id: 9, token: "F-09-Spring", title: "Elastic return", physics: ["spring"], imgI: 8 },
+            { id: 10, token: "F-10-Heavy", title: "Inertia tail", physics: ["high-mass"], imgI: 9 },
+            { id: 11, token: "F-11-Low", title: "Instant commit", physics: ["low-friction"], imgI: 10 },
+            { id: 12, token: "F-12-Spring", title: "Series coda", physics: ["spring", "low-friction"], imgI: 11 }
+          ]
+        }
+      };
+
+      function currentSeries() {
+        var q = "";
+        try {
+          q = new URLSearchParams(window.location.search).get("series") || "";
+        } catch (e) {}
+        var slug = (q || "frictionless").toLowerCase().replace(/[^a-z0-9-]/g, "");
+        return SERIES_BY_SLUG[slug] || SERIES_BY_SLUG.frictionless;
+      }
+
+      var series = currentSeries();
+      var routerEl = document.getElementById("app-router");
+      var seriesGrid = document.getElementById("seriesGrid");
+      var viewProject = document.getElementById("project-overlay");
+      var projectEyebrow = document.getElementById("projectEyebrow");
+      var projectToken = document.getElementById("projectToken");
+      var projectLogicBody = document.getElementById("projectLogicBody");
+      var specLaw = document.getElementById("specLaw");
+      var specStiffness = document.getElementById("specStiffness");
+      var specMass = document.getElementById("specMass");
+      var specJustice = document.getElementById("specJustice");
+      var btnBackSeries = document.getElementById("btnBackSeries");
+      var btnCloseProject = document.getElementById("btnCloseProject");
+      var openPlayerBtn = document.getElementById("openPlayerBtn");
+      var heroCanvas = document.getElementById("heroPhysics");
+      var heroViewport = document.getElementById("projectHeroViewport");
+      var btnXray = document.getElementById("btnXray");
+      var shellSearch = document.getElementById("shellSearch");
+
+      var currentProjectId = null;
+      var currentPatternToken = "";
+      var heroRaf = null;
+      var heroCtx = null;
+      var xrayOn = false;
+      var activeFilter = "all";
+
+      var sim = { u: 0, v: 0, k: 180, m: 1.2, zeta: 0.16, mw: 1, mh: 1, buf: null, bufI: 0 };
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function hashProject(id) {
+        return "#project=" + id;
+      }
+
+      function parseProjectFromHash() {
+        var m = (window.location.hash || "").match(/^#project=(\d+)$/);
+        return m ? parseInt(m[1], 10) : null;
+      }
+
+      function patternByProjectId(id) {
+        for (var i = 0; i < series.patterns.length; i++) {
+          if (series.patterns[i].id === id) return series.patterns[i];
+        }
+        return null;
+      }
+
+      function physicsLabel(tags) {
+        if (!tags || !tags.length) return "";
+        var map = { spring: "Spring-Based", "high-mass": "High Mass", "low-friction": "Low Friction" };
+        var parts = [];
+        for (var t = 0; t < tags.length; t++) {
+          if (map[tags[t]]) parts.push(map[tags[t]]);
+        }
+        return parts.join(" · ");
+      }
+
+      function matchesFilter(pattern, filterKey) {
+        if (filterKey === "all") return true;
+        if (filterKey === "spring") return pattern.physics.indexOf("spring") >= 0;
+        if (filterKey === "high-mass") return pattern.physics.indexOf("high-mass") >= 0;
+        if (filterKey === "low-friction") return pattern.physics.indexOf("low-friction") >= 0;
+        return true;
+      }
+
+      function applySeriesHero() {
+        document.getElementById("seriesTitle").textContent = series.title;
+        document.getElementById("seriesDesc").textContent = series.desc;
+        var st = series.stats;
+        document.getElementById("seriesStats").innerHTML =
+          st.patterns +
+          " Patterns <span>·</span> " +
+          st.justice +
+          " Avg Justice <span>·</span> Curated by " +
+          esc(st.curator);
+        document.title = series.title + " · Yinspire";
+      }
+
+      function renderGrid() {
+        if (!seriesGrid) return;
+        var q = (shellSearch && shellSearch.value ? shellSearch.value : "").trim().toLowerCase();
+        var html = "";
+        for (var i = 0; i < series.patterns.length; i++) {
+          var pat = series.patterns[i];
+          if (!matchesFilter(pat, activeFilter)) continue;
+          if (q) {
+            var hay = (pat.token + " " + pat.title + " " + physicsLabel(pat.physics)).toLowerCase();
+            if (hay.indexOf(q) < 0) continue;
+          }
+          var pos = IMG_POS[pat.imgI % IMG_POS.length];
+          html +=
+            '<button type="button" class="series-cell" role="listitem" data-project-id="' +
+            pat.id +
+            '" data-token="' +
+            esc(pat.token) +
+            '" aria-label="' +
+            esc(pat.title) +
+            ", " +
+            esc(pat.token) +
+            '"><span class="series-cell__frame"><img src="' +
+            esc(PHOTO) +
+            '" alt="" loading="lazy" decoding="async" style="object-position:' +
+            esc(pos) +
+            '"/></span><p class="series-cell__token">Token: ' +
+            esc(pat.token) +
+            '</p><p class="series-cell__physics">' +
+            esc(physicsLabel(pat.physics)) +
+            "</p></button>";
+        }
+        if (!html) {
+          html =
+            '<p class="series-cell__token" style="grid-column:1/-1;padding:48px 0;text-align:center;color:#86868b;">No patterns match this filter.</p>';
+        }
+        seriesGrid.innerHTML = html;
+      }
+
+      function setFilterButtons() {
+        var chips = document.querySelectorAll(".filter-chip[data-filter]");
+        for (var c = 0; c < chips.length; c++) {
+          var f = chips[c].getAttribute("data-filter");
+          chips[c].setAttribute("aria-pressed", f === activeFilter ? "true" : "false");
+        }
+      }
+
+      function buildSpecPayload(projectId) {
+        var laws = ["Damped Spring", "Expo-Out Shell", "Linear-In-Out", "High-Mass Damping", "AI-Optimized Spring"];
+        var k = 160 + projectId * 5;
+        var m = 1.0 + (projectId % 8) * 0.09;
+        var justice = (95.4 + (projectId % 18) * 0.21).toFixed(1) + "%";
+        return {
+          law: laws[(projectId - 1) % laws.length],
+          stiffness: k + " units",
+          mass: m.toFixed(1) + " kg",
+          justice: justice,
+          intent:
+            "This motion is standardized to reduce cognitive load during high-frequency interaction. Issued within " +
+            series.title +
+            ".",
+          damping: 0.12 + (projectId % 6) * 0.02
+        };
+      }
+
+      function fetchProjectSpec(projectId) {
+        var url =
+          "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(buildSpecPayload(projectId)));
+        return fetch(url).then(function (res) {
+          return res.json();
+        });
+      }
+
+      function fetchProject(id) {
+        return new Promise(function (resolve) {
+          window.setTimeout(function () {
+            var pat = patternByProjectId(id);
+            if (!pat) {
+              resolve(null);
+              return;
+            }
+            resolve({
+              id: pat.id,
+              title: pat.title,
+              token: pat.token,
+              src: PHOTO,
+              imgPos: IMG_POS[pat.imgI % IMG_POS.length]
+            });
+          }, 0);
+        });
+      }
+
+      function parseNum(str) {
+        var m = String(str || "").match(/[\d.]+/);
+        return m ? parseFloat(m[0]) : NaN;
+      }
+
+      function stopHeroPhysics() {
+        if (heroRaf != null) {
+          window.cancelAnimationFrame(heroRaf);
+          heroRaf = null;
+        }
+      }
+
+      function heroResize() {
+        if (!heroCanvas || !heroViewport) return;
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var rect = heroViewport.getBoundingClientRect();
+        var rw = Math.max(1, rect.width);
+        var rh = Math.max(1, rect.height);
+        sim.mw = rw;
+        sim.mh = rh;
+        heroCanvas.width = Math.floor(rw * dpr);
+        heroCanvas.height = Math.floor(rh * dpr);
+        heroCanvas.style.width = rw + "px";
+        heroCanvas.style.height = rh + "px";
+        heroCtx = heroCanvas.getContext("2d");
+        if (heroCtx) heroCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function drawHeroFrame() {
+        if (!heroCtx) return;
+        var w = sim.mw;
+        var h = sim.mh;
+        heroCtx.clearRect(0, 0, w, h);
+        heroCtx.fillStyle = "#ebebed";
+        heroCtx.fillRect(0, 0, w, h);
+        var cx = w * 0.5;
+        var cy = h * 0.22;
+        var scale = Math.min(w, h) * 0.08;
+        var len = h * 0.38;
+        var mx = cx + sim.u * scale * 0.02;
+        var my = cy + len;
+        heroCtx.strokeStyle = "rgba(0,0,0,0.18)";
+        heroCtx.lineWidth = 2;
+        heroCtx.beginPath();
+        heroCtx.moveTo(cx, cy);
+        heroCtx.lineTo(mx, my);
+        heroCtx.stroke();
+        heroCtx.fillStyle = "#1d1d1f";
+        heroCtx.beginPath();
+        heroCtx.arc(cx, cy, 5, 0, Math.PI * 2);
+        heroCtx.fill();
+        heroCtx.fillStyle = "#ffffff";
+        heroCtx.strokeStyle = "rgba(0,0,0,0.2)";
+        heroCtx.lineWidth = 1.5;
+        heroCtx.beginPath();
+        heroCtx.arc(mx, my, 14, 0, Math.PI * 2);
+        heroCtx.fill();
+        heroCtx.stroke();
+        if (!xrayOn) return;
+        var xr = "rgba(0,0,0,0.4)";
+        heroCtx.strokeStyle = xr;
+        heroCtx.lineWidth = 1.5;
+        heroCtx.setLineDash([4, 5]);
+        heroCtx.beginPath();
+        heroCtx.moveTo(cx - 40, cy + len * 0.35);
+        heroCtx.lineTo(cx + 40, cy + len * 0.35);
+        heroCtx.stroke();
+        heroCtx.setLineDash([]);
+      }
+
+      function startHeroPhysics(spec) {
+        stopHeroPhysics();
+        if (!heroCanvas || !heroViewport) return;
+        heroResize();
+        var k = parseNum(spec.stiffness);
+        var m = parseNum(spec.mass);
+        if (!isFinite(k) || k <= 0) k = 180;
+        if (!isFinite(m) || m <= 0) m = 1.2;
+        sim.k = k;
+        sim.m = m;
+        sim.zeta = typeof spec.damping === "number" && isFinite(spec.damping) ? spec.damping : 0.16;
+        sim.u = 42 + (currentProjectId % 5) * 6;
+        sim.v = 0;
+        sim.buf = new Float32Array(160);
+        sim.bufI = 0;
+        function step() {
+          var dt = 1 / 60;
+          var w0 = Math.sqrt(sim.k / sim.m);
+          var c = 2 * sim.zeta * w0 * sim.m;
+          var acc = (-sim.k * sim.u - c * sim.v) / sim.m;
+          sim.v += acc * dt;
+          sim.u += sim.v * dt;
+          if (sim.buf) {
+            sim.buf[sim.bufI % sim.buf.length] = sim.v;
+            sim.bufI++;
+          }
+          drawHeroFrame();
+          heroRaf = window.requestAnimationFrame(step);
+        }
+        heroRaf = window.requestAnimationFrame(step);
+      }
+
+      function applySpecToDom(p, spec) {
+        if (projectToken) projectToken.textContent = "Token: " + (p.token || currentPatternToken);
+        if (projectEyebrow) projectEyebrow.textContent = series.title;
+        if (specLaw) specLaw.textContent = spec.law;
+        if (specStiffness) specStiffness.textContent = spec.stiffness;
+        if (specMass) specMass.textContent = spec.mass;
+        if (specJustice) specJustice.textContent = spec.justice;
+        if (projectLogicBody) projectLogicBody.textContent = spec.intent || buildSpecPayload(1).intent;
+      }
+
+      function setProjectOpen(isOpen) {
+        if (!routerEl || !viewProject) return;
+        if (isOpen) {
+          routerEl.classList.add("is-project");
+          document.body.classList.add("router-project-open");
+          viewProject.setAttribute("aria-hidden", "false");
+        } else {
+          stopHeroPhysics();
+          xrayOn = false;
+          if (btnXray) btnXray.setAttribute("aria-pressed", "false");
+          routerEl.classList.remove("is-project");
+          document.body.classList.remove("router-project-open");
+          viewProject.setAttribute("aria-hidden", "true");
+          currentProjectId = null;
+          currentPatternToken = "";
+        }
+      }
+
+      function closeOverlayToSeries() {
+        setProjectOpen(false);
+        applySeriesHero();
+        try {
+          var u = new URL(window.location.href);
+          u.hash = "";
+          window.history.replaceState({ view: "series" }, "", u.pathname + u.search);
+        } catch (err) {
+          window.history.replaceState({ view: "series" }, "", "collection-detail.html");
+        }
+      }
+
+      function navigate(projectId, usePush) {
+        if (usePush === undefined) usePush = true;
+        fetchProject(projectId).then(function (p) {
+          if (!p) return null;
+          return fetchProjectSpec(projectId).then(function (spec) {
+            return { p: p, spec: spec };
+          });
+        }).then(function (bundle) {
+          if (!bundle) return;
+          var p = bundle.p;
+          var spec = bundle.spec;
+          currentProjectId = projectId;
+          currentPatternToken = p.token || "";
+          applySpecToDom(p, spec);
+          setProjectOpen(true);
+          window.requestAnimationFrame(function () {
+            heroResize();
+            startHeroPhysics(spec);
+          });
+          document.title = p.title + " · " + series.title;
+          if (usePush) {
+            window.history.pushState({ view: "project", project: projectId }, "", hashProject(projectId));
+          }
+          if (btnBackSeries) btnBackSeries.focus();
+        });
+      }
+
+      function wireGrid() {
+        if (!seriesGrid) return;
+        seriesGrid.addEventListener("click", function (ev) {
+          var cell = ev.target.closest(".series-cell[data-project-id]");
+          if (!cell || !seriesGrid.contains(cell)) return;
+          var id = parseInt(cell.getAttribute("data-project-id"), 10);
+          if (!isFinite(id)) return;
+          navigate(id, true);
+        });
+      }
+
+      function wireFilters() {
+        var bar = document.querySelector(".filter-bar__inner");
+        if (!bar) return;
+        bar.addEventListener("click", function (ev) {
+          var chip = ev.target.closest(".filter-chip[data-filter]");
+          if (!chip) return;
+          activeFilter = chip.getAttribute("data-filter") || "all";
+          setFilterButtons();
+          renderGrid();
+        });
+      }
+
+      function wireOverlay() {
+        if (btnBackSeries) btnBackSeries.addEventListener("click", closeOverlayToSeries);
+        if (btnCloseProject) btnCloseProject.addEventListener("click", closeOverlayToSeries);
+        if (btnXray) {
+          btnXray.addEventListener("click", function () {
+            xrayOn = !xrayOn;
+            btnXray.setAttribute("aria-pressed", xrayOn ? "true" : "false");
+          });
+        }
+        if (openPlayerBtn) {
+          openPlayerBtn.addEventListener("click", function () {
+            if (currentProjectId == null) return;
+            window.location.href = "env.html?id=" + encodeURIComponent(String(currentProjectId));
+          });
+        }
+        if (heroViewport && typeof ResizeObserver !== "undefined") {
+          var ro = new ResizeObserver(function () {
+            if (routerEl.classList.contains("is-project")) heroResize();
+          });
+          ro.observe(heroViewport);
+        }
+        window.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && routerEl.classList.contains("is-project")) closeOverlayToSeries();
+        });
+        function closeIfProjectNav(ev) {
+          if (routerEl.classList.contains("is-project")) {
+            if (ev) ev.preventDefault();
+            closeOverlayToSeries();
+          }
+        }
+        var wordmark = document.getElementById("wordmark");
+        if (wordmark) {
+          wordmark.addEventListener("click", closeIfProjectNav);
+        }
+        var navHome = document.getElementById("navHome");
+        if (navHome) navHome.addEventListener("click", closeIfProjectNav);
+        var navProfile = document.getElementById("navProfile");
+        if (navProfile) navProfile.addEventListener("click", closeIfProjectNav);
+        var headerWorkspace = document.getElementById("headerWorkspace");
+        if (headerWorkspace) headerWorkspace.addEventListener("click", closeIfProjectNav);
+      }
+
+      function wirePopstate() {
+        window.addEventListener("popstate", function (ev) {
+          var st = ev.state;
+          if (st && st.view === "series") {
+            closeOverlayToSeries();
+            return;
+          }
+          if (st && st.view === "project" && st.project) {
+            navigate(st.project, false);
+            return;
+          }
+          var hid = parseProjectFromHash();
+          if (hid != null) navigate(hid, false);
+          else closeOverlayToSeries();
+        });
+      }
+
+      function wireSearch() {
+        if (!shellSearch) return;
+        var t = null;
+        shellSearch.addEventListener("input", function () {
+          if (t) window.clearTimeout(t);
+          t = window.setTimeout(renderGrid, 120);
+        });
+      }
+
+      function initGravityCloth() {
+        if (window.innerWidth < 768) return;
+        var canvas = document.getElementById("gravity-cloth");
+        if (!canvas) return;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        var COLS = 26;
+        var ROWS = 26;
+        var n = COLS * ROWS;
+        var restX = new Float32Array(n);
+        var restY = new Float32Array(n);
+        var px = new Float32Array(n);
+        var py = new Float32Array(n);
+        var vx = new Float32Array(n);
+        var vy = new Float32Array(n);
+        var fax = new Float32Array(n);
+        var fay = new Float32Array(n);
+        var mw = 1;
+        var mh = 1;
+        var mx = 0;
+        var my = 0;
+
+        function I(ii, jj) {
+          return jj * COLS + ii;
+        }
+
+        function layoutRest() {
+          var pad = 0.08;
+          var x0 = mw * pad;
+          var y0 = mh * pad;
+          var x1 = mw * (1 - pad);
+          var y1 = mh * (1 - pad);
+          var ii;
+          var jj;
+          for (jj = 0; jj < ROWS; jj++) {
+            for (ii = 0; ii < COLS; ii++) {
+              var k = I(ii, jj);
+              restX[k] = x0 + (ii / (COLS - 1)) * (x1 - x0);
+              restY[k] = y0 + (jj / (ROWS - 1)) * (y1 - y0);
+              px[k] = 0;
+              py[k] = 0;
+              vx[k] = 0;
+              vy[k] = 0;
+            }
+          }
+        }
+
+        function resize() {
+          var dpr = Math.min(window.devicePixelRatio || 1, 2);
+          mw = window.innerWidth;
+          mh = window.innerHeight;
+          mx = mw * 0.5;
+          my = mh * 0.45;
+          canvas.width = Math.max(1, Math.floor(mw * dpr));
+          canvas.height = Math.max(1, Math.floor(mh * dpr));
+          canvas.style.width = mw + "px";
+          canvas.style.height = mh + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          layoutRest();
+        }
+
+        function setPtr(e) {
+          var rect = canvas.getBoundingClientRect();
+          mx = e.clientX - rect.left;
+          my = e.clientY - rect.top;
+        }
+
+        window.addEventListener("pointermove", setPtr, { passive: true });
+        window.addEventListener("pointerdown", setPtr, { passive: true });
+
+        var kAnchor = 3;
+        var kStruct = 88;
+        var damping = 0.86;
+        var kMouse = 2;
+        var A = 110;
+        var dt = 0.2;
+        var SUB = 3;
+
+        function step() {
+          var sig = Math.min(mw, mh) * 0.19;
+          var tx = mx;
+          var ty = my;
+          var s;
+          var kk;
+          var ii;
+          var jj;
+          var dx;
+          var dy;
+          var len;
+          var L0;
+          var mag;
+          var inv;
+          var cx;
+          var cy;
+          var r;
+          var gauss;
+          var gx;
+          var gy;
+
+          function springEdge(a, b) {
+            var ax = restX[a] + px[a];
+            var ay = restY[a] + py[a];
+            var bx = restX[b] + px[b];
+            var by = restY[b] + py[b];
+            dx = bx - ax;
+            dy = by - ay;
+            len = Math.sqrt(dx * dx + dy * dy);
+            L0 = Math.sqrt(
+              (restX[b] - restX[a]) * (restX[b] - restX[a]) + (restY[b] - restY[a]) * (restY[b] - restY[a])
+            );
+            if (len < 1e-5) return;
+            inv = 1 / len;
+            mag = kStruct * (len - L0);
+            var sx = mag * dx * inv;
+            var sy = mag * dy * inv;
+            fax[a] += sx;
+            fay[a] += sy;
+            fax[b] -= sx;
+            fay[b] -= sy;
+          }
+
+          for (s = 0; s < SUB; s++) {
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] = 0;
+              fay[kk] = 0;
+            }
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] += -kAnchor * px[kk] - damping * vx[kk];
+              fay[kk] += -kAnchor * py[kk] - damping * vy[kk];
+              cx = restX[kk] + px[kk];
+              cy = restY[kk] + py[kk];
+              dx = tx - cx;
+              dy = ty - cy;
+              r = Math.sqrt(dx * dx + dy * dy);
+              gauss = A * Math.exp(-(r * r) / (2 * sig * sig));
+              if (r > 1e-4) {
+                inv = 1 / r;
+                gx = dx * inv;
+                gy = dy * inv;
+              } else {
+                gx = 0;
+                gy = 0;
+              }
+              fax[kk] += kMouse * gauss * gx;
+              fay[kk] += kMouse * gauss * gy;
+            }
+            for (jj = 0; jj < ROWS; jj++) {
+              for (ii = 0; ii < COLS - 1; ii++) springEdge(I(ii, jj), I(ii + 1, jj));
+            }
+            for (jj = 0; jj < ROWS - 1; jj++) {
+              for (ii = 0; ii < COLS; ii++) springEdge(I(ii, jj), I(ii, jj + 1));
+            }
+            for (kk = 0; kk < n; kk++) {
+              vx[kk] += fax[kk] * dt;
+              vy[kk] += fay[kk] * dt;
+              px[kk] += vx[kk] * dt;
+              py[kk] += vy[kk] * dt;
+            }
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, mw, mh);
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = "rgba(0,0,0,0.022)";
+          ctx.fillStyle = "rgba(0,0,0,0.04)";
+          var ii;
+          var jj;
+          var a;
+          var b;
+          var pa;
+          var pb;
+
+          function posFor(index) {
+            return { x: restX[index] + px[index], y: restY[index] + py[index] };
+          }
+
+          ctx.beginPath();
+          for (jj = 0; jj < ROWS; jj++) {
+            for (ii = 0; ii < COLS - 1; ii++) {
+              a = I(ii, jj);
+              b = I(ii + 1, jj);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          for (jj = 0; jj < ROWS - 1; jj++) {
+            for (ii = 0; ii < COLS; ii++) {
+              a = I(ii, jj);
+              b = I(ii, jj + 1);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          ctx.stroke();
+          for (var pi = 0; pi < n; pi++) {
+            pa = posFor(pi);
+            ctx.beginPath();
+            ctx.arc(pa.x, pa.y, 1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        function loop() {
+          step();
+          draw();
+          window.requestAnimationFrame(loop);
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+        window.requestAnimationFrame(loop);
+      }
+
+      function boot() {
+        applySeriesHero();
+        setFilterButtons();
+        renderGrid();
+        wireGrid();
+        wireFilters();
+        wireOverlay();
+        wirePopstate();
+        wireSearch();
+        initGravityCloth();
+
+        var headerCreateBtn = document.getElementById("headerCreateBtn");
+        if (headerCreateBtn) {
+          headerCreateBtn.addEventListener("click", function () {
+            window.location.href = "create.html";
+          });
+        }
+
+        var initial = parseProjectFromHash();
+        try {
+          var u = new URL(window.location.href);
+          if (!u.search) u.searchParams.set("series", series.slug);
+          var base = u.pathname + u.search;
+          if (initial != null) {
+            window.history.replaceState({ view: "project", project: initial }, "", base + hashProject(initial));
+            navigate(initial, false);
+          } else {
+            window.history.replaceState({ view: "series" }, "", base);
+          }
+        } catch (e2) {
+          if (initial != null) {
+            window.history.replaceState(
+              { view: "project", project: initial },
+              "",
+              "collection-detail.html?series=" + series.slug + hashProject(initial)
+            );
+            navigate(initial, false);
+          } else {
+            window.history.replaceState({ view: "series" }, "", "collection-detail.html?series=" + series.slug);
+          }
+        }
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

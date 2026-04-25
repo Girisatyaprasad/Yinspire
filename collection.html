@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <title>Collection · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --apple-grey: #f5f5f7;
+      --label-grey: #86868b;
+      --header-h: 64px;
+      --gutter: 24px;
+      --folder-gap: 24px;
+      --tile-radius: var(--radius-g2);
+      --helv: Helvetica, Arial, "Helvetica Neue", sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--helv);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    body.router-sub-open {
+      overflow: hidden;
+    }
+
+    #gravity-cloth {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+
+    @media (max-width: 767px) {
+      #gravity-cloth {
+        display: none;
+      }
+    }
+
+    .shell-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px clamp(16px, 3vw, 32px);
+      min-height: var(--header-h);
+      padding: 10px max(28px, env(safe-area-inset-right)) 10px max(28px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__left {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .shell-header__center {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .shell-header__wordmark:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-matrix {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(10px, 1.5vw, 22px);
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .shell-matrix::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shell-matrix__link {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 6px;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-matrix__link:hover {
+      color: var(--muted);
+    }
+
+    .shell-matrix__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-matrix__link:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-search {
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+    }
+
+    .shell-search-hero {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding: 36px var(--gutter) 8px;
+      box-sizing: border-box;
+    }
+
+    .shell-search-hero .shell-search {
+      width: 440px;
+      max-width: min(440px, 100%);
+    }
+
+    .shell-search__input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: #1d1d1f;
+    }
+
+    .shell-search__input::placeholder {
+      color: #86868b;
+      font-weight: 400;
+    }
+
+    .shell-search__input:focus {
+      outline: 2px solid rgba(0, 0, 0, 0.12);
+      outline-offset: 0;
+    }
+
+    .shell-header__right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px 12px;
+      min-width: 0;
+    }
+
+    .shell-workspace {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-workspace:hover {
+      border-color: rgba(0, 0, 0, 0.22);
+    }
+
+    .shell-workspace[aria-current="page"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .shell-workspace:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .shell-header__link--identity {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 12px;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .shell-header__link--identity:hover {
+      color: var(--muted);
+    }
+
+    .shell-header__link--identity.shell-header__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-header__link--identity:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-header__create {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .shell-header__create:hover {
+      opacity: 0.9;
+    }
+
+    .shell-header__create:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .shell-main {
+      position: relative;
+      z-index: 10;
+      padding-top: var(--header-h);
+      min-height: 100vh;
+      background: transparent;
+    }
+
+    #app-router {
+      position: relative;
+      min-height: calc(100vh - var(--header-h));
+      overflow-x: hidden;
+    }
+
+    .library-stage {
+      transition: transform 0.42s var(--ease), opacity 0.42s var(--ease);
+      transform: scale(1) translateZ(0);
+      opacity: 1;
+      transform-origin: center center;
+      will-change: auto;
+    }
+
+    #app-router.is-sub .library-stage {
+      transform: scale(0.95);
+      opacity: 0.1;
+      pointer-events: none;
+      user-select: none;
+      will-change: transform, opacity;
+    }
+
+    #app-router.is-sub .folder-grid {
+      will-change: transform;
+    }
+
+    .lib-hero {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 20px 40px 32px;
+    }
+
+    .lib-hero__title {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      color: var(--ink);
+    }
+
+    .lib-hero__sub {
+      margin: 14px 0 0;
+      max-width: 52ch;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--label-grey);
+    }
+
+    .folder-grid-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 max(40px, env(safe-area-inset-left)) 80px max(40px, env(safe-area-inset-right));
+      max-width: 1680px;
+      margin: 0 auto;
+    }
+
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--folder-gap);
+      width: max(100%, calc(5 * 148px + 4 * var(--folder-gap)));
+      margin: 0 auto;
+      will-change: auto;
+    }
+
+    .folder-tile {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      text-align: center;
+      font: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .folder-tile:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 4px;
+      border-radius: var(--tile-radius);
+    }
+
+    .folder-tile__stack {
+      position: relative;
+      width: 100%;
+      overflow: visible;
+    }
+
+    /* In-flow spacer: all visual children are absolute, so aspect-ratio alone collapses to 0 height. */
+    .folder-tile__stack::before {
+      content: "";
+      display: block;
+      width: 100%;
+      padding-top: 56.25%;
+    }
+
+    .folder-tile__layer {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 86%;
+      height: 86%;
+      border-radius: var(--tile-radius);
+      background: linear-gradient(145deg, #e8e8ed 0%, #d2d2d7 100%);
+      will-change: transform;
+      transition: transform 0.3s var(--ease);
+      transform: translateX(-50%);
+    }
+
+    .folder-tile__layer--3 {
+      width: 78%;
+      height: 72%;
+      opacity: 0.45;
+      transform: translateX(-50%) translateY(14px);
+    }
+
+    .folder-tile__layer--2 {
+      width: 82%;
+      height: 78%;
+      opacity: 0.62;
+      transform: translateX(-50%) translateY(7px);
+    }
+
+    .folder-tile__layer--1 {
+      width: 86%;
+      height: 84%;
+      opacity: 0.85;
+      transform: translateX(-50%) translateY(3px);
+    }
+
+    .folder-tile:hover .folder-tile__layer--3 {
+      transform: translateX(-50%) translateY(18px);
+    }
+
+    .folder-tile:hover .folder-tile__layer--2 {
+      transform: translateX(-50%) translateY(9px);
+    }
+
+    .folder-tile:hover .folder-tile__layer--1 {
+      transform: translateX(-50%) translateY(4px);
+    }
+
+    .folder-tile__face {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      top: 50%;
+      width: 92%;
+      height: 88%;
+      transform: translate(-50%, -50%);
+      border-radius: var(--tile-radius);
+      background: var(--apple-grey);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: clamp(8px, 1.5vw, 16px);
+    }
+
+    .folder-tile__name {
+      font-size: clamp(11px, 1.1vw, 15px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .folder-tile__logic {
+      font-size: clamp(9px, 0.95vw, 11px);
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .sub-overlay {
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      background: #ffffff;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      transform: translate3d(100%, 0, 0);
+      transition: transform 0.46s var(--ease);
+      will-change: transform;
+    }
+
+    #app-router.is-sub #sub-overlay {
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+    }
+
+    .sub-overlay__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px var(--gutter) 8px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .sub-overlay__back,
+    .sub-overlay__close {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.06);
+      color: #1d1d1f;
+      cursor: pointer;
+    }
+
+    .sub-overlay__close {
+      font-size: 22px;
+      font-weight: 300;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 50%;
+      line-height: 1;
+    }
+
+    .sub-overlay__back:hover,
+    .sub-overlay__close:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .sub-overlay__back:focus-visible,
+    .sub-overlay__close:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .sub-overlay__head {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 8px var(--gutter) 28px;
+    }
+
+    .sub-overlay__title {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
+    .sub-overlay__logic {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .sub-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      padding: 0 var(--gutter) 120px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 900px) {
+      .sub-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .sub-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sub-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sub-card__frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--tile-radius);
+      overflow: hidden;
+      background: var(--apple-grey);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      will-change: transform;
+    }
+
+    .sub-card__frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .sub-card__meta {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .sub-card__btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 20px;
+      border-radius: 999px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      will-change: transform;
+    }
+
+    .sub-card__btn:hover {
+      opacity: 0.94;
+    }
+
+    .sub-card__btn:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gravity-cloth" aria-hidden="true"></canvas>
+  <header class="shell-header" aria-label="Primary">
+    <div class="shell-header__left">
+      <a class="shell-header__wordmark" href="index.html#discovery" id="wordmark">Yinspire</a>
+    </div>
+    <div class="shell-header__center">
+      <nav class="shell-matrix" aria-label="The Matrix">
+        <a class="shell-matrix__link" href="index.html#discovery" id="navHome" title="The curated Final standard">Home</a>
+        <a class="shell-matrix__link" href="community.html" title="WIP and social playground">Community</a>
+        <a
+          class="shell-matrix__link shell-matrix__link--active"
+          href="collection.html"
+          aria-current="page"
+          title="Your collections and series"
+          >Library</a>
+        <a class="shell-matrix__link" href="search.html" title="Search Matrix — physics and feeling">Search</a>
+        <a class="shell-matrix__link" href="activity.html" title="Activity hub — audits, mentions, series">Activity</a>
+        <a class="shell-matrix__link" href="docs.html" title="Laws of Motion">Docs</a>
+      </nav>
+    </div>
+    <div class="shell-header__right">
+      <a href="teams.html" class="shell-workspace" id="headerWorkspace" hidden data-workspace-link>Workspace</a>
+      <a class="shell-header__link--identity" href="profile.html" id="navProfile">Profile</a>
+      <button type="button" class="shell-header__create" id="headerCreateBtn">Create</button>
+    </div>
+  </header>
+
+  <script>
+    (function () {
+      var KEY = "yinspire_verified_team_v1";
+      function syncWorkspaceNav() {
+        var el = document.getElementById("headerWorkspace");
+        if (!el) return;
+        var on = false;
+        try {
+          on = !!localStorage.getItem(KEY);
+        } catch (e) {}
+        el.hidden = !on;
+        var onTeams = /teams\.html/i.test(window.location.pathname + window.location.href);
+        if (on && onTeams) el.setAttribute("aria-current", "page");
+        else el.removeAttribute("aria-current");
+      }
+      syncWorkspaceNav();
+      window.addEventListener("storage", syncWorkspaceNav);
+      window.addEventListener("yinspire-team-changed", syncWorkspaceNav);
+    })();
+  </script>
+
+  <main class="shell-main">
+    <div class="shell-search-hero" role="search">
+      <form class="shell-search" action="search.html" method="get">
+        <label class="visually-hidden" for="shellSearch">Search</label>
+        <input
+          id="shellSearch"
+          name="q"
+          class="shell-search__input"
+          type="search"
+          placeholder="Search Yinspire..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </form>
+    </div>
+    <div id="app-router" class="app-router">
+      <div class="library-stage" id="libraryStage">
+        <div class="lib-hero">
+          <h1 class="lib-hero__title">Library</h1>
+          <p class="lib-hero__sub">Categorized by standardized motion logic and physics intent.</p>
+        </div>
+        <div class="folder-grid-wrap">
+          <div class="folder-grid" id="folderGrid" role="list"></div>
+        </div>
+      </div>
+
+      <div id="sub-overlay" class="sub-overlay" aria-hidden="true">
+        <div class="sub-overlay__top">
+          <button type="button" class="sub-overlay__back" id="btnBackLib">← Library</button>
+          <button type="button" class="sub-overlay__close" id="btnCloseSub" aria-label="Close">×</button>
+        </div>
+        <div class="sub-overlay__head">
+          <h2 id="subFolderTitle" class="sub-overlay__title"></h2>
+          <p id="subFolderLogic" class="sub-overlay__logic"></p>
+        </div>
+        <div class="sub-grid" id="subGrid" role="list"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var PHOTO = "assets/image_a1ca9e.jpg";
+      var IMG_POS = ["10% 50%", "35% 48%", "58% 52%", "82% 50%", "22% 55%", "48% 42%", "72% 48%", "15% 45%", "55% 50%", "88% 48%", "30% 50%", "65% 46%", "18% 52%", "50% 50%", "75% 44%", "40% 48%"];
+      var LAW_ROT = [
+        "Logic: Linear-In-Out",
+        "Logic: High-Mass Damping",
+        "Logic: AI-Optimized Spring",
+        "Logic: Apple-style Sheet Motion"
+      ];
+
+      var FOLDERS = [
+        {
+          id: 1,
+          name: "The Frictionless Series",
+          logicLabel: "Logic: Linear-In-Out",
+          projects: [
+            { id: 1, title: "Linear ingress", imgPos: IMG_POS[0] },
+            { id: 2, title: "Hold curve", imgPos: IMG_POS[1] },
+            { id: 3, title: "Linear egress", imgPos: IMG_POS[2] }
+          ]
+        },
+        {
+          id: 2,
+          name: "The Heavyweight Archive",
+          logicLabel: "Logic: High-Mass Damping",
+          projects: [
+            { id: 4, title: "Mass settle", imgPos: IMG_POS[3] },
+            { id: 5, title: "Damped return", imgPos: IMG_POS[4] },
+            { id: 6, title: "Inertia tail", imgPos: IMG_POS[5] }
+          ]
+        },
+        {
+          id: 3,
+          name: "The Neural Bounce",
+          logicLabel: "Logic: AI-Optimized Spring",
+          projects: [
+            { id: 7, title: "Spring probe", imgPos: IMG_POS[6] },
+            { id: 8, title: "Oscillation cap", imgPos: IMG_POS[7] },
+            { id: 9, title: "Settling window", imgPos: IMG_POS[8] }
+          ]
+        },
+        {
+          id: 4,
+          name: "Standardized Overlays",
+          logicLabel: "Logic: Apple-style Sheet Motion",
+          projects: [
+            { id: 10, title: "Sheet lift", imgPos: IMG_POS[9] },
+            { id: 11, title: "Dimming plane", imgPos: IMG_POS[10] },
+            { id: 12, title: "Dismiss curve", imgPos: IMG_POS[11] }
+          ]
+        }
+      ];
+
+      for (var fi = 5; fi <= 15; fi++) {
+        var pid = 12 + (fi - 4);
+        FOLDERS.push({
+          id: fi,
+          name: "Physics Index · " + (fi < 10 ? "0" + fi : String(fi)),
+          logicLabel: LAW_ROT[(fi - 1) % 4],
+          projects: [{ id: pid, title: "Reference take " + fi, imgPos: IMG_POS[(fi - 1) % IMG_POS.length] }]
+        });
+      }
+
+      var routerEl = document.getElementById("app-router");
+      var folderGridEl = document.getElementById("folderGrid");
+      var subOverlay = document.getElementById("sub-overlay");
+      var subGridEl = document.getElementById("subGrid");
+      var subTitle = document.getElementById("subFolderTitle");
+      var subLogic = document.getElementById("subFolderLogic");
+      var btnBackLib = document.getElementById("btnBackLib");
+      var btnCloseSub = document.getElementById("btnCloseSub");
+      var navHome = document.getElementById("navHome");
+      var navProfile = document.getElementById("navProfile");
+      var headerWorkspace = document.getElementById("headerWorkspace");
+
+      var currentFolderId = null;
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function hashFolder(id) {
+        return "#folder=" + id;
+      }
+
+      function parseFolderFromHash() {
+        var m = (window.location.hash || "").match(/^#folder=(\d+)$/);
+        return m ? parseInt(m[1], 10) : null;
+      }
+
+      function folderById(id) {
+        for (var i = 0; i < FOLDERS.length; i++) {
+          if (FOLDERS[i].id === id) return FOLDERS[i];
+        }
+        return null;
+      }
+
+      function renderFolders() {
+        if (!folderGridEl) return;
+        var html = "";
+        for (var i = 0; i < FOLDERS.length; i++) {
+          var f = FOLDERS[i];
+          html +=
+            '<button type="button" class="folder-tile" role="listitem" data-folder-id="' +
+            f.id +
+            '" aria-label="' +
+            esc(f.name) +
+            '"><span class="folder-tile__stack"><span class="folder-tile__layer folder-tile__layer--3" aria-hidden="true"></span><span class="folder-tile__layer folder-tile__layer--2" aria-hidden="true"></span><span class="folder-tile__layer folder-tile__layer--1" aria-hidden="true"></span><span class="folder-tile__face"><span class="folder-tile__name">' +
+            esc(f.name) +
+            '</span><span class="folder-tile__logic">' +
+            esc(f.logicLabel) +
+            "</span></span></span></button>";
+        }
+        folderGridEl.innerHTML = html;
+      }
+
+      function renderSubGrid(folder) {
+        if (!subGridEl || !folder) return;
+        var html = "";
+        for (var j = 0; j < folder.projects.length; j++) {
+          var p = folder.projects[j];
+          var pos = p.imgPos ? ' style="object-position:' + esc(p.imgPos) + '"' : "";
+          html +=
+            '<article class="sub-card" role="listitem"><div class="sub-card__frame"><img src="' +
+            esc(PHOTO) +
+            '" alt="" loading="lazy" decoding="async"' +
+            pos +
+            '/></div><p class="sub-card__meta">' +
+            esc(p.title) +
+            '</p><a class="sub-card__btn" href="env.html?id=' +
+            encodeURIComponent(String(p.id)) +
+            '">Open in Player</a></article>';
+        }
+        subGridEl.innerHTML = html;
+      }
+
+      function setSubOpen(isOpen) {
+        if (!routerEl || !subOverlay) return;
+        if (isOpen) {
+          routerEl.classList.add("is-sub");
+          document.body.classList.add("router-sub-open");
+          subOverlay.setAttribute("aria-hidden", "false");
+        } else {
+          routerEl.classList.remove("is-sub");
+          document.body.classList.remove("router-sub-open");
+          subOverlay.setAttribute("aria-hidden", "true");
+          subGridEl.innerHTML = "";
+          currentFolderId = null;
+        }
+      }
+
+      function openFolder(id, usePush) {
+        if (usePush === undefined) usePush = true;
+        var f = folderById(id);
+        if (!f) return;
+        currentFolderId = id;
+        subTitle.textContent = f.name;
+        subLogic.textContent = f.logicLabel;
+        renderSubGrid(f);
+        setSubOpen(true);
+        document.title = f.name + " · Yinspire";
+        if (usePush) {
+          window.history.pushState({ view: "sub", folder: id }, "", hashFolder(id));
+        }
+        btnBackLib.focus();
+      }
+
+      function showLibrary() {
+        setSubOpen(false);
+        document.title = "Collection · Yinspire";
+      }
+
+      function onPopState(ev) {
+        var st = ev.state;
+        if (st && st.view === "library") {
+          showLibrary();
+          return;
+        }
+        if (st && st.view === "sub" && st.folder) {
+          openFolder(st.folder, false);
+          return;
+        }
+        var hid = parseFolderFromHash();
+        if (hid != null) openFolder(hid, false);
+        else showLibrary();
+      }
+
+      function onHashChange() {
+        var hid = parseFolderFromHash();
+        if (hid != null) openFolder(hid, false);
+        else showLibrary();
+      }
+
+      function wireFolders() {
+        if (!folderGridEl) return;
+        folderGridEl.addEventListener("click", function (ev) {
+          var btn = ev.target.closest(".folder-tile[data-folder-id]");
+          if (!btn || !folderGridEl.contains(btn)) return;
+          var id = parseInt(btn.getAttribute("data-folder-id"), 10);
+          if (!isFinite(id)) return;
+          openFolder(id, true);
+        });
+      }
+
+      function wireControls() {
+        function back() {
+          window.history.back();
+        }
+        if (btnBackLib) btnBackLib.addEventListener("click", back);
+        if (btnCloseSub) btnCloseSub.addEventListener("click", back);
+        function backIfSubNav(ev) {
+          if (routerEl.classList.contains("is-sub")) {
+            if (ev) ev.preventDefault();
+            window.history.back();
+          }
+        }
+        if (navHome) {
+          navHome.addEventListener("click", backIfSubNav);
+        }
+        if (navProfile) {
+          navProfile.addEventListener("click", backIfSubNav);
+        }
+        if (headerWorkspace) {
+          headerWorkspace.addEventListener("click", backIfSubNav);
+        }
+        var wordmark = document.getElementById("wordmark");
+        if (wordmark) {
+          wordmark.addEventListener("click", function (e) {
+            backIfSubNav(e);
+          });
+        }
+        window.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && routerEl.classList.contains("is-sub")) window.history.back();
+        });
+        var headerCreateBtn = document.getElementById("headerCreateBtn");
+        if (headerCreateBtn) {
+          headerCreateBtn.addEventListener("click", function () {
+            window.location.href = "create.html";
+          });
+        }
+      }
+
+      function initGravityCloth() {
+        if (window.innerWidth < 768) return;
+        var canvas = document.getElementById("gravity-cloth");
+        if (!canvas) return;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        var COLS = 26;
+        var ROWS = 26;
+        var n = COLS * ROWS;
+        var restX = new Float32Array(n);
+        var restY = new Float32Array(n);
+        var px = new Float32Array(n);
+        var py = new Float32Array(n);
+        var vx = new Float32Array(n);
+        var vy = new Float32Array(n);
+        var fax = new Float32Array(n);
+        var fay = new Float32Array(n);
+        var mw = 1;
+        var mh = 1;
+        var mx = 0;
+        var my = 0;
+
+        function I(ii, jj) {
+          return jj * COLS + ii;
+        }
+
+        function layoutRest() {
+          var pad = 0.08;
+          var x0 = mw * pad;
+          var y0 = mh * pad;
+          var x1 = mw * (1 - pad);
+          var y1 = mh * (1 - pad);
+          var ii;
+          var jj;
+          for (jj = 0; jj < ROWS; jj++) {
+            for (ii = 0; ii < COLS; ii++) {
+              var k = I(ii, jj);
+              restX[k] = x0 + (ii / (COLS - 1)) * (x1 - x0);
+              restY[k] = y0 + (jj / (ROWS - 1)) * (y1 - y0);
+              px[k] = 0;
+              py[k] = 0;
+              vx[k] = 0;
+              vy[k] = 0;
+            }
+          }
+        }
+
+        function resize() {
+          var dpr = Math.min(window.devicePixelRatio || 1, 2);
+          mw = window.innerWidth;
+          mh = window.innerHeight;
+          mx = mw * 0.5;
+          my = mh * 0.45;
+          canvas.width = Math.max(1, Math.floor(mw * dpr));
+          canvas.height = Math.max(1, Math.floor(mh * dpr));
+          canvas.style.width = mw + "px";
+          canvas.style.height = mh + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          layoutRest();
+        }
+
+        function setPtr(e) {
+          var rect = canvas.getBoundingClientRect();
+          mx = e.clientX - rect.left;
+          my = e.clientY - rect.top;
+        }
+
+        window.addEventListener("pointermove", setPtr, { passive: true });
+        window.addEventListener("pointerdown", setPtr, { passive: true });
+
+        var kAnchor = 3;
+        var kStruct = 88;
+        var damping = 0.86;
+        var kMouse = 2;
+        var A = 110;
+        var dt = 0.2;
+        var SUB = 3;
+
+        function step() {
+          var sig = Math.min(mw, mh) * 0.19;
+          var tx = mx;
+          var ty = my;
+          var s;
+          var kk;
+          var ii;
+          var jj;
+          var dx;
+          var dy;
+          var len;
+          var L0;
+          var mag;
+          var inv;
+          var cx;
+          var cy;
+          var r;
+          var gauss;
+          var gx;
+          var gy;
+
+          function springEdge(a, b) {
+            var ax = restX[a] + px[a];
+            var ay = restY[a] + py[a];
+            var bx = restX[b] + px[b];
+            var by = restY[b] + py[b];
+            dx = bx - ax;
+            dy = by - ay;
+            len = Math.sqrt(dx * dx + dy * dy);
+            L0 = Math.sqrt(
+              (restX[b] - restX[a]) * (restX[b] - restX[a]) + (restY[b] - restY[a]) * (restY[b] - restY[a])
+            );
+            if (len < 1e-5) return;
+            inv = 1 / len;
+            mag = kStruct * (len - L0);
+            var sx = mag * dx * inv;
+            var sy = mag * dy * inv;
+            fax[a] += sx;
+            fay[a] += sy;
+            fax[b] -= sx;
+            fay[b] -= sy;
+          }
+
+          for (s = 0; s < SUB; s++) {
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] = 0;
+              fay[kk] = 0;
+            }
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] += -kAnchor * px[kk] - damping * vx[kk];
+              fay[kk] += -kAnchor * py[kk] - damping * vy[kk];
+              cx = restX[kk] + px[kk];
+              cy = restY[kk] + py[kk];
+              dx = tx - cx;
+              dy = ty - cy;
+              r = Math.sqrt(dx * dx + dy * dy);
+              gauss = A * Math.exp(-(r * r) / (2 * sig * sig));
+              if (r > 1e-4) {
+                inv = 1 / r;
+                gx = dx * inv;
+                gy = dy * inv;
+              } else {
+                gx = 0;
+                gy = 0;
+              }
+              fax[kk] += kMouse * gauss * gx;
+              fay[kk] += kMouse * gauss * gy;
+            }
+            for (jj = 0; jj < ROWS; jj++) {
+              for (ii = 0; ii < COLS - 1; ii++) springEdge(I(ii, jj), I(ii + 1, jj));
+            }
+            for (jj = 0; jj < ROWS - 1; jj++) {
+              for (ii = 0; ii < COLS; ii++) springEdge(I(ii, jj), I(ii, jj + 1));
+            }
+            for (kk = 0; kk < n; kk++) {
+              vx[kk] += fax[kk] * dt;
+              vy[kk] += fay[kk] * dt;
+              px[kk] += vx[kk] * dt;
+              py[kk] += vy[kk] * dt;
+            }
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, mw, mh);
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = "rgba(0,0,0,0.022)";
+          ctx.fillStyle = "rgba(0,0,0,0.04)";
+          var ii;
+          var jj;
+          var a;
+          var b;
+          var pa;
+          var pb;
+
+          function posFor(index) {
+            return { x: restX[index] + px[index], y: restY[index] + py[index] };
+          }
+
+          ctx.beginPath();
+          for (jj = 0; jj < ROWS; jj++) {
+            for (ii = 0; ii < COLS - 1; ii++) {
+              a = I(ii, jj);
+              b = I(ii + 1, jj);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          for (jj = 0; jj < ROWS - 1; jj++) {
+            for (ii = 0; ii < COLS; ii++) {
+              a = I(ii, jj);
+              b = I(ii, jj + 1);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          ctx.stroke();
+          for (var pi = 0; pi < n; pi++) {
+            pa = posFor(pi);
+            ctx.beginPath();
+            ctx.arc(pa.x, pa.y, 1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        function loop() {
+          step();
+          draw();
+          window.requestAnimationFrame(loop);
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+        window.requestAnimationFrame(loop);
+      }
+
+      function boot() {
+        renderFolders();
+        wireFolders();
+        window.addEventListener("popstate", onPopState);
+        window.addEventListener("hashchange", onHashChange);
+        wireControls();
+        initGravityCloth();
+
+        var initial = parseFolderFromHash();
+        if (initial != null) {
+          window.history.replaceState({ view: "sub", folder: initial }, "", hashFolder(initial));
+          openFolder(initial, false);
+        } else {
+          window.history.replaceState({ view: "library" }, "", "collection.html");
+        }
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

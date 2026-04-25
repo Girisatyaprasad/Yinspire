@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <title>Laws of Motion · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --apple-grey: #f5f5f7;
+      --label: #86868b;
+      --header-h: 64px;
+      --gutter: 24px;
+      --helv: Helvetica, Arial, "Helvetica Neue", sans-serif;
+      --doc-max: 52rem;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--helv);
+      -webkit-font-smoothing: antialiased;
+      font-size: 17px;
+      line-height: 1.55;
+      letter-spacing: -0.015em;
+    }
+
+    .shell-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px clamp(16px, 3vw, 32px);
+      min-height: var(--header-h);
+      padding: 10px max(28px, env(safe-area-inset-right)) 10px max(28px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__left {
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+
+    .shell-header__center {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .shell-header__wordmark:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-matrix {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(10px, 1.5vw, 20px);
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .shell-matrix::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shell-matrix__link {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 4px;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-matrix__link:hover {
+      color: var(--muted);
+    }
+
+    .shell-matrix__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-matrix__link:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-search {
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+    }
+
+    .shell-search-hero {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding: 28px var(--gutter) 8px;
+      box-sizing: border-box;
+    }
+
+    .shell-search-hero .shell-search {
+      width: 440px;
+      max-width: min(440px, 100%);
+    }
+
+    .shell-search__input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: #1d1d1f;
+    }
+
+    .shell-search__input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px 12px;
+      min-width: 0;
+    }
+
+    .shell-workspace {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-workspace[aria-current="page"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .shell-header__link--identity {
+      font-size: 14px;
+      padding: 8px 12px;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .shell-header__create {
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .shell-main {
+      padding-top: var(--header-h);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .doc-layout {
+      max-width: calc(var(--doc-max) + 14rem);
+      margin: 0 auto;
+      padding: 20px var(--gutter) 120px;
+      display: grid;
+      grid-template-columns: minmax(0, 13rem) 1fr;
+      gap: clamp(32px, 5vw, 72px);
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .doc-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .doc-nav {
+        position: static;
+      }
+    }
+
+    .doc-nav {
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .doc-nav__title {
+      margin: 0 0 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .doc-nav ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .doc-nav li {
+      margin-bottom: 8px;
+    }
+
+    .doc-nav a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .doc-nav a:hover {
+      color: var(--ink);
+    }
+
+    .doc-article {
+      max-width: var(--doc-max);
+    }
+
+    .doc-hero {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .doc-hero__eyebrow {
+      margin: 0 0 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .doc-hero__title {
+      margin: 0 0 16px;
+      font-size: clamp(32px, 4.5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+    }
+
+    .doc-hero__lead {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.45;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 40ch;
+    }
+
+    .doc-section {
+      margin-bottom: 48px;
+    }
+
+    .doc-section h2 {
+      margin: 0 0 16px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .doc-section h3 {
+      margin: 28px 0 12px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .doc-section p {
+      margin: 0 0 16px;
+      color: var(--ink);
+    }
+
+    .doc-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .doc-note {
+      margin: 20px 0;
+      padding: 16px 18px;
+      background: var(--apple-grey);
+      border-radius: var(--radius-g2);
+      border-left: 3px solid #1d1d1f;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .doc-mono {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.92em;
+      letter-spacing: 0;
+    }
+
+    .doc-list {
+      margin: 0 0 16px;
+      padding-left: 1.25rem;
+    }
+
+    .doc-list li {
+      margin-bottom: 8px;
+    }
+
+    .doc-formula {
+      margin: 24px 0;
+      padding: 20px 22px;
+      background: #fafafa;
+      border-radius: var(--radius-g2);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .doc-foot {
+      margin-top: 64px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .doc-foot a {
+      color: #007aff;
+      text-decoration: none;
+    }
+
+    .doc-foot a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header class="shell-header" aria-label="Primary">
+    <div class="shell-header__left">
+      <a class="shell-header__wordmark" href="index.html#discovery">Yinspire</a>
+    </div>
+    <div class="shell-header__center">
+      <nav class="shell-matrix" aria-label="The Matrix">
+        <a class="shell-matrix__link" href="index.html#discovery" title="The curated Final standard">Home</a>
+        <a class="shell-matrix__link" href="community.html" title="WIP and social playground">Community</a>
+        <a class="shell-matrix__link" href="collection.html" title="Your collections and series">Library</a>
+        <a class="shell-matrix__link" href="search.html" title="Search Matrix">Search</a>
+        <a class="shell-matrix__link" href="activity.html" title="Activity hub">Activity</a>
+        <a class="shell-matrix__link shell-matrix__link--active" href="docs.html" aria-current="page" title="Laws of Motion">Docs</a>
+      </nav>
+    </div>
+    <div class="shell-header__right">
+      <a href="teams.html" class="shell-workspace" id="headerWorkspace" hidden data-workspace-link>Workspace</a>
+      <a class="shell-header__link--identity" href="profile.html">Profile</a>
+      <button type="button" class="shell-header__create" id="headerCreateBtn">Create</button>
+    </div>
+  </header>
+
+  <script>
+    (function () {
+      var KEY = "yinspire_verified_team_v1";
+      function syncWorkspaceNav() {
+        var el = document.getElementById("headerWorkspace");
+        if (!el) return;
+        var on = false;
+        try {
+          on = !!localStorage.getItem(KEY);
+        } catch (e) {}
+        el.hidden = !on;
+      }
+      syncWorkspaceNav();
+      window.addEventListener("storage", syncWorkspaceNav);
+      window.addEventListener("yinspire-team-changed", syncWorkspaceNav);
+    })();
+  </script>
+
+  <main class="shell-main">
+    <div class="shell-search-hero" role="search">
+      <form class="shell-search" action="search.html" method="get">
+        <label class="visually-hidden" for="shellSearch">Search</label>
+        <input
+          id="shellSearch"
+          name="q"
+          class="shell-search__input"
+          type="search"
+          placeholder="Search documentation…"
+          autocomplete="off"
+        />
+      </form>
+    </div>
+    <div class="doc-layout">
+      <nav class="doc-nav" aria-label="On this page">
+        <p class="doc-nav__title">Contents</p>
+        <ul>
+          <li><a href="#manifesto">Manifesto</a></li>
+          <li><a href="#laws">Laws of motion</a></li>
+          <li><a href="#stiffness">Stiffness · 180</a></li>
+          <li><a href="#justice">Justice score</a></li>
+          <li><a href="#audit">Justice audit</a></li>
+        </ul>
+      </nav>
+
+      <article class="doc-article">
+        <header class="doc-hero">
+          <p class="doc-hero__eyebrow">Authority</p>
+          <h1 class="doc-hero__title">Laws of Motion</h1>
+          <p class="doc-hero__lead">
+            The institutional surface for how Yinspire measures physics, intent, and fairness. Not decoration —
+            retrieval, audit, and ship criteria share one vocabulary.
+          </p>
+        </header>
+
+        <section class="doc-section" id="manifesto">
+          <h2>Manifesto</h2>
+          <p>
+            Motion is interface. When stiffness, damping, and mass are left implicit, products drift into
+            inconsistency. Yinspire treats every transition as a governed simulation: bounded energy, perceptible
+            cause, and a measurable obligation to the person on the other side of the glass.
+          </p>
+          <p class="doc-note">
+            This document is the canonical reference for tokens surfaced in env, the Search Matrix, and Justice
+            audits. Numbers below are normative for the “Final” lane unless a team charter explicitly overrides them.
+          </p>
+        </section>
+
+        <section class="doc-section" id="laws">
+          <h2>Laws of motion</h2>
+          <h3>I. Conservation of intent</h3>
+          <p>
+            A gesture must not borrow kinetic language it cannot pay for. Spring language requires restorable
+            equilibrium; inertial language requires deceleration you can read; magnetic language requires an attraction
+            field you can predict before the snap.
+          </p>
+          <h3>II. Observable cause</h3>
+          <p>
+            Every state change names its driver: user impulse, system resolution, or cross-surface handoff. If the
+            driver cannot be named, the motion is not ship-ready.
+          </p>
+          <h3>III. Justice as latency bound</h3>
+          <p>
+            “Fair” is not a vibe. It is a bound on how long truth is withheld from the user — how long the surface
+            pretends confidence while physics or data are still unresolved.
+          </p>
+        </section>
+
+        <section class="doc-section" id="stiffness">
+          <h2>Stiffness · 180</h2>
+          <p>
+            <span class="doc-mono">k = 180</span> (with canonical mass and damping in the default bundle) is the gold
+            standard for institutional spring surfaces: sheets, modals, and navigation chrome that must read as calm
+            but decisive.
+          </p>
+          <ul class="doc-list">
+            <li>
+              <strong>Below ~120</strong> — comfortable for large amplitude or educational motion, but risks “mush” on
+              dense chrome.
+            </li>
+            <li>
+              <strong>180</strong> — restores to equilibrium within a window that matches reading rhythm on modern
+              displays without overshoot chatter when paired with nominal damping.
+            </li>
+            <li>
+              <strong>Above ~260</strong> — reserved for small targets, tool transitions, or explicit “snap” families
+              where the affordance is precision, not drift.
+            </li>
+          </ul>
+          <p>
+            Teams may fork profiles (for example the sheet family at <span class="doc-mono">k = 320</span>), but the
+            default token in Standardization remains <span class="doc-mono">180 / ζ_nominal / m_nominal</span> so
+            cross-surface muscle memory holds across products.
+          </p>
+        </section>
+
+        <section class="doc-section" id="justice">
+          <h2>Justice score</h2>
+          <p>
+            The Justice Score is a unitary index from 0–100 aggregating measurable signals from the motion trace and its
+            relationship to declared intent. It is designed for retrieval (Search Matrix) and gatekeeping (ship
+            lanes), not vanity metrics.
+          </p>
+          <div class="doc-formula" role="region" aria-label="Justice score composition">
+            <p style="margin-top: 0"><strong>Composition (illustrative weights for the shell)</strong></p>
+            <p>
+              <span class="doc-mono">J = 100 × ( 0.34·S_sym + 0.28·S_cause + 0.22·S_bound + 0.16·S_handoff )</span>
+            </p>
+            <ul class="doc-list" style="margin-bottom: 0">
+              <li>
+                <strong>S_sym</strong> — symmetry of acceleration phases around the declared rest state (no hidden
+                torque).
+              </li>
+              <li>
+                <strong>S_cause</strong> — alignment between input timing and visible response onset (no anticipatory
+                lying).
+              </li>
+              <li>
+                <strong>S_bound</strong> — energy and overshoot remain inside the envelope implied by stiffness and
+                damping class.
+              </li>
+              <li>
+                <strong>S_handoff</strong> — continuity across route or layer changes; handoff shocks lower the
+                score.
+              </li>
+            </ul>
+          </div>
+          <p>
+            Thresholds such as “<span class="doc-mono">J ≥ 90</span>” in the Search Matrix map to high-confidence
+            retrieval: surfaces that are unlikely to surprise under audit replay.
+          </p>
+        </section>
+
+        <section class="doc-section" id="audit">
+          <h2>Justice audit</h2>
+          <p>
+            Audits replay transitions under fixed device profiles, logging phase traces and comparing them to the
+            declared law + token bundle. Failures are typed (symmetry, cause, bound, handoff) so Activity notifications
+            route to the right owners.
+          </p>
+          <p>
+            The Activity hub surfaces audit state transitions: queued, in review, passed, or policy-blocked. Team
+            mentions and Series updates share the same transport so retention is not siloed by notification category.
+          </p>
+        </section>
+
+        <footer class="doc-foot">
+          Implement the <a href="search.html">Search Matrix</a> against these fields. Ship policy for your institution
+          lives next to <a href="teams.html">Workspace</a> tokens.
+        </footer>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var b = document.getElementById("headerCreateBtn");
+      if (b) {
+        b.addEventListener("click", function () {
+          window.location.href = "create.html";
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <title>Community · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --label: #86868b;
+      --apple-grey: #f5f5f7;
+      --header-h: 64px;
+      --gutter: 24px;
+      --helv: Helvetica, Arial, "Helvetica Neue", sans-serif;
+      --feed-max: 600px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--helv);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .shell-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px clamp(16px, 3vw, 32px);
+      min-height: var(--header-h);
+      padding: 10px max(28px, env(safe-area-inset-right)) 10px max(28px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__left {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .shell-header__center {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .shell-header__wordmark:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-matrix {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(10px, 1.5vw, 22px);
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .shell-matrix::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shell-matrix__link {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 6px;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-matrix__link:hover {
+      color: var(--muted);
+    }
+
+    .shell-matrix__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-matrix__link:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-search {
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+    }
+
+    .shell-search-hero {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      max-width: var(--feed-max);
+      margin: 0 auto;
+      padding: 28px var(--gutter) 8px;
+      box-sizing: border-box;
+    }
+
+    .shell-search-hero .shell-search {
+      width: 440px;
+      max-width: min(440px, 100%);
+    }
+
+    .shell-search__input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: #1d1d1f;
+    }
+
+    .shell-search__input::placeholder {
+      color: var(--label);
+    }
+
+    .shell-header__right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px 12px;
+      min-width: 0;
+    }
+
+    .shell-workspace {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-workspace:hover {
+      border-color: rgba(0, 0, 0, 0.22);
+    }
+
+    .shell-workspace[aria-current="page"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .shell-workspace:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .shell-header__link--identity {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 12px;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .shell-header__link--identity:hover {
+      color: var(--muted);
+    }
+
+    .shell-header__link--identity.shell-header__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-header__link--identity:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-header__create {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .shell-header__create:hover {
+      opacity: 0.9;
+    }
+
+    .shell-header__create:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .feed-scroller {
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .feed-scroller {
+        scroll-snap-type: none;
+      }
+    }
+
+    .feed-column {
+      max-width: var(--feed-max);
+      margin: 0 auto;
+      padding: 0 max(16px, env(safe-area-inset-left)) 120px max(16px, env(safe-area-inset-right));
+    }
+
+    .post {
+      position: relative;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      min-height: calc(100dvh - var(--header-h));
+      padding: 28px 0 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .post-media-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      max-height: calc(100dvh - var(--header-h) - 220px);
+      margin: 0 auto;
+      border-radius: var(--radius-g2);
+      overflow: hidden;
+      background: #fafafa;
+    }
+
+    .post-media-wrap video,
+    .post-media-wrap iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      object-fit: cover;
+      vertical-align: top;
+    }
+
+    .post-meta {
+      padding: 20px 0 0;
+    }
+
+    .post-user {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .post-desc {
+      margin: 8px 0 0;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--ink);
+      opacity: 0.92;
+    }
+
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .justice-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+      border: none;
+      background: none;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .justice-btn:hover {
+      opacity: 0.65;
+    }
+
+    .justice-btn:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 4px;
+      border-radius: var(--radius-g2);
+    }
+
+    .justice-btn svg {
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .justice-popover {
+      position: absolute;
+      z-index: 60;
+      left: 0;
+      top: calc(100% + 10px);
+      width: min(320px, calc(100vw - 32px));
+      padding: 18px 18px 16px;
+      background: #ffffff;
+      border-radius: var(--radius-g2);
+      box-shadow: 0 16px 48px -24px rgba(0, 0, 0, 0.22), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+      font-family: var(--helv);
+    }
+
+    .justice-popover[hidden] {
+      display: none !important;
+    }
+
+    .justice-popover__title {
+      margin: 0 0 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .justice-row {
+      margin-bottom: 14px;
+    }
+
+    .justice-row:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .justice-row label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .justice-row output {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .justice-row input[type="range"] {
+      width: 100%;
+      accent-color: #1d1d1f;
+    }
+
+    .comments {
+      margin-top: 32px;
+      padding-top: 28px;
+    }
+
+    .comments__label {
+      margin: 0 0 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .comment {
+      margin: 0 0 14px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    .comment strong {
+      font-weight: 700;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      align-items: center;
+    }
+
+    .comment-form input {
+      flex: 1;
+      min-width: 0;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 12px 0 10px;
+      border: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .comment-form input:focus {
+      outline: none;
+      border-bottom-color: rgba(0, 0, 0, 0.35);
+    }
+
+    .comment-form button {
+      flex-shrink: 0;
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 999px;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .comment-form button:hover {
+      opacity: 0.9;
+    }
+
+    .comment-form button:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .save-fab {
+      position: absolute;
+      right: max(0px, env(safe-area-inset-right));
+      bottom: 100px;
+      z-index: 40;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.88);
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 28px -12px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s var(--ease), opacity 0.2s var(--ease);
+    }
+
+    .save-fab:hover {
+      transform: scale(1.05);
+      opacity: 0.95;
+    }
+
+    .save-fab:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .save-fab svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .collection-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: max(16px, env(safe-area-inset-bottom)) 16px 16px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.28s var(--ease);
+    }
+
+    .collection-sheet[aria-hidden="false"] {
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    .collection-sheet__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.28);
+      border: none;
+      cursor: pointer;
+    }
+
+    .collection-sheet__panel {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: var(--feed-max);
+      max-height: 52vh;
+      overflow: auto;
+      padding: 22px 20px 24px;
+      background: #ffffff;
+      border-radius: var(--radius-g2) var(--radius-g2) 0 0;
+      box-shadow: 0 -8px 40px -16px rgba(0, 0, 0, 0.2);
+      transform: translateY(110%);
+      transition: transform 0.32s var(--ease);
+    }
+
+    .collection-sheet[aria-hidden="false"] .collection-sheet__panel {
+      transform: translateY(0);
+    }
+
+    .collection-sheet__title {
+      margin: 0 0 6px;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .collection-sheet__sub {
+      margin: 0 0 18px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--label);
+    }
+
+    .collection-sheet__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .collection-sheet__item {
+      width: 100%;
+      text-align: left;
+      font-family: var(--helv);
+      font-size: 15px;
+      font-weight: 400;
+      padding: 14px 4px;
+      border: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      background: none;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .collection-sheet__item:last-child {
+      border-bottom: none;
+    }
+
+    .collection-sheet__item:hover {
+      opacity: 0.6;
+    }
+
+    .collection-sheet__item:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: -2px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      z-index: 300;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.88);
+      color: #fff;
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      opacity: 0;
+      transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+      pointer-events: none;
+    }
+
+    .toast--show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .justice-anchor {
+      position: relative;
+    }
+
+    .load-sentinel {
+      height: 1px;
+      margin: 24px 0;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="shell-header" aria-label="Primary">
+    <div class="shell-header__left">
+      <a class="shell-header__wordmark" href="index.html#discovery" id="wordmark">Yinspire</a>
+    </div>
+    <div class="shell-header__center">
+      <nav class="shell-matrix" aria-label="The Matrix">
+        <a class="shell-matrix__link" href="index.html#discovery" title="The curated Final standard">Home</a>
+        <a
+          class="shell-matrix__link shell-matrix__link--active"
+          href="community.html"
+          aria-current="page"
+          title="WIP and social playground"
+          >Community</a>
+        <a class="shell-matrix__link" href="collection.html" title="Your collections and series">Library</a>
+        <a class="shell-matrix__link" href="search.html" title="Search Matrix — physics and feeling">Search</a>
+        <a class="shell-matrix__link" href="activity.html" title="Activity hub — audits, mentions, series">Activity</a>
+        <a class="shell-matrix__link" href="docs.html" title="Laws of Motion">Docs</a>
+      </nav>
+    </div>
+    <div class="shell-header__right">
+      <a href="teams.html" class="shell-workspace" id="headerWorkspace" hidden data-workspace-link>Workspace</a>
+      <a class="shell-header__link--identity" href="profile.html" id="navProfile">Profile</a>
+      <button type="button" class="shell-header__create" id="headerCreateBtn">Create</button>
+    </div>
+  </header>
+
+  <script>
+    (function () {
+      var KEY = "yinspire_verified_team_v1";
+      function syncWorkspaceNav() {
+        var el = document.getElementById("headerWorkspace");
+        if (!el) return;
+        var on = false;
+        try {
+          on = !!localStorage.getItem(KEY);
+        } catch (e) {}
+        el.hidden = !on;
+        var onTeams = /teams\.html/i.test(window.location.pathname + window.location.href);
+        if (on && onTeams) el.setAttribute("aria-current", "page");
+        else el.removeAttribute("aria-current");
+      }
+      syncWorkspaceNav();
+      window.addEventListener("storage", syncWorkspaceNav);
+      window.addEventListener("yinspire-team-changed", syncWorkspaceNav);
+    })();
+  </script>
+
+  <div class="feed-scroller" id="feedScroller" tabindex="-1">
+    <div class="shell-search-hero" role="search">
+      <form class="shell-search" action="search.html" method="get">
+        <label class="visually-hidden" for="shellSearch">Search</label>
+        <input
+          id="shellSearch"
+          name="q"
+          class="shell-search__input"
+          type="search"
+          placeholder="Search WIP physics, creators…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </form>
+    </div>
+    <div class="feed-column" id="feedColumn"></div>
+  </div>
+
+  <div class="collection-sheet" id="collectionSheet" aria-hidden="true" role="dialog" aria-labelledby="sheetTitle">
+    <button type="button" class="collection-sheet__backdrop" id="sheetBackdrop" aria-label="Dismiss"></button>
+    <div class="collection-sheet__panel">
+      <h2 class="collection-sheet__title" id="sheetTitle">Add to collection</h2>
+      <p class="collection-sheet__sub">Choose a destination for this WIP.</p>
+      <ul class="collection-sheet__list" id="collectionList"></ul>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var VIDEO_SRC =
+        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+      var POSTER = "assets/image_a1ca9e.jpg";
+
+      var COLLECTIONS = [
+        "The Frictionless Series",
+        "The Heavyweight Archive",
+        "The Neural Bounce",
+        "Standardized Overlays",
+        "Personal R&D"
+      ];
+
+      var USERS = ["@studio.yin", "@motion.lab", "@physics.ui", "@zero.latency", "@spring.only"];
+      var DESC = [
+        "WIP: damping curve on sheet dismiss — chasing Apple-grade settle.",
+        "Live spring-mass sandbox. Tuning stiffness before ship.",
+        "Frictionless scroll handoff prototype (9:16 crop test).",
+        "High-mass card stack — looking for snappier release.",
+        "Experimental justice envelope on tap feedback."
+      ];
+
+      var feedColumn = document.getElementById("feedColumn");
+      var feedScroller = document.getElementById("feedScroller");
+      var collectionSheet = document.getElementById("collectionSheet");
+      var collectionList = document.getElementById("collectionList");
+      var sheetBackdrop = document.getElementById("sheetBackdrop");
+      var toastEl = document.getElementById("toast");
+      var headerCreateBtn = document.getElementById("headerCreateBtn");
+
+      var postSeq = 0;
+      var loading = false;
+      var openPopover = null;
+      var openSheetPostId = null;
+      var toastTimer = null;
+      var videoPlayObserver = null;
+      var loadSentinel = null;
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function escSrcdoc(html) {
+        return String(html).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+      }
+
+      function iconJustice() {
+        return (
+          '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">' +
+          '<path d="M12 3v18M6 7h12M6 7c0 2.5-2 4.5-2 7a2 2 0 004 0c0-2.5-2-4.5-2-7zm14 0c0 2.5 2 4.5 2 7a2 2 0 01-4 0c0-2.5 2-4.5 2-7z" stroke-linecap="round" stroke-linejoin="round"/>' +
+          "</svg>"
+        );
+      }
+
+      function iconBookmark() {
+        return (
+          '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75">' +
+          '<path d="M6 4h12v16l-6-4-6 4V4z" stroke-linejoin="round"/>' +
+          "</svg>"
+        );
+      }
+
+      function liveCodeSrcdoc(seed) {
+        var c = 180 + (seed % 80);
+        return (
+          "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/><style>" +
+          "html,body{margin:0;height:100%;background:#0a0a0b;overflow:hidden}" +
+          "canvas{display:block;width:100%;height:100%}" +
+          "</style></head><body><canvas id=\"c\"></canvas><script>" +
+          "var canvas=document.getElementById('c');var ctx=canvas.getContext('2d');" +
+          "function size(){canvas.width=canvas.clientWidth*devicePixelRatio;canvas.height=canvas.clientHeight*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);} " +
+          "var w,h,t=0,u=0,v=0,k=" +
+          c +
+          ",m=1.1,z=0.18;" +
+          "function loop(){t+=1/60;var w0=Math.sqrt(k/m),d=2*z*w0*m,a=(-k*u-d*v)/m;v+=a*(1/60);u+=v*(1/60);size();w=canvas.clientWidth;h=canvas.clientHeight;ctx.fillStyle='#111';ctx.fillRect(0,0,w,h);var cx=w*0.5,cy=h*0.42,len=h*0.28,mx=cx+u*0.35,my=cy+len;ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(mx,my);ctx.stroke();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,cy,5,0,6.28);ctx.fill();ctx.fillStyle='#34c759';ctx.beginPath();ctx.arc(mx,my,11,0,6.28);ctx.fill();requestAnimationFrame(loop);} " +
+          "window.addEventListener('resize',size);size();loop();" +
+          "<\/script></body></html>"
+        );
+      }
+
+      function seedComments(id) {
+        return [
+          { u: "@review.bot", t: "Mass reads high on release — try −0.02 damping." },
+          { u: "@yinspire", t: "Justice curve is clean through 320ms window." }
+        ].map(function (row, i) {
+          return { u: row.u, t: row.t + " · #" + id + "-" + (i + 1) };
+        });
+      }
+
+      function buildPost(id, type) {
+        var user = USERS[id % USERS.length];
+        var desc = DESC[id % DESC.length];
+        var media =
+          type === "video"
+            ? '<video class="post-video" muted playsinline loop preload="none" poster="' +
+              esc(POSTER) +
+              '" data-src="' +
+              esc(VIDEO_SRC) +
+              '" aria-label="WIP preview video"></video>'
+            : '<iframe class="post-live" title="Live physics preview" sandbox="allow-scripts" loading="lazy" srcdoc="' +
+              escSrcdoc(liveCodeSrcdoc(id)) +
+              '"></iframe>';
+
+        var comments = seedComments(id);
+        var commentsHtml = comments
+          .map(function (c) {
+            return '<p class="comment"><strong>' + esc(c.u) + "</strong> " + esc(c.t) + "</p>";
+          })
+          .join("");
+
+        return (
+          '<article class="post" data-post-id="' +
+          id +
+          '" data-post-type="' +
+          type +
+          '">' +
+          '<div class="post-media-wrap" data-media-root>' +
+          media +
+          "</div>" +
+          '<div class="post-meta">' +
+          '<p class="post-user">' +
+          esc(user) +
+          "</p>" +
+          '<p class="post-desc">' +
+          esc(desc) +
+          "</p>" +
+          '<div class="post-actions">' +
+          '<div class="justice-anchor">' +
+          '<button type="button" class="justice-btn" data-justice-toggle aria-expanded="false" aria-controls="justice-pop-' +
+          id +
+          '">' +
+          iconJustice() +
+          "<span>Justice Check</span></button>" +
+          '<div class="justice-popover" id="justice-pop-' +
+          id +
+          '" hidden role="dialog" aria-label="Physics audit">' +
+          '<p class="justice-popover__title">Rate physics</p>' +
+          '<div class="justice-row"><label>Smoothness <output data-out="smooth">3</output></label>' +
+          '<input type="range" min="1" max="5" value="3" data-dim="smooth" aria-label="Smoothness"/></div>' +
+          '<div class="justice-row"><label>Weight <output data-out="weight">3</output></label>' +
+          '<input type="range" min="1" max="5" value="3" data-dim="weight" aria-label="Weight"/></div>' +
+          '<div class="justice-row"><label>Snappiness <output data-out="snap">3</output></label>' +
+          '<input type="range" min="1" max="5" value="3" data-dim="snap" aria-label="Snappiness"/></div>' +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<section class="comments" aria-label="Technical feedback">' +
+          '<p class="comments__label">Comments</p>' +
+          '<div class="comments-list" data-comments>' +
+          commentsHtml +
+          "</div>" +
+          '<form class="comment-form" data-comment-form>' +
+          '<label class="visually-hidden" for="c-' +
+          id +
+          '">Add comment</label>' +
+          '<input id="c-' +
+          id +
+          '" type="text" placeholder="Technical note…" autocomplete="off" />' +
+          '<button type="submit">Post</button>' +
+          "</form>" +
+          "</section>" +
+          '<button type="button" class="save-fab" data-save aria-label="Add to collection">' +
+          iconBookmark() +
+          "</button>" +
+          "</article>"
+        );
+      }
+
+      function appendPosts(n) {
+        var frag = document.createDocumentFragment();
+        var tmp = document.createElement("div");
+        var i;
+        for (i = 0; i < n; i++) {
+          postSeq++;
+          var type = postSeq % 3 === 0 ? "live" : "video";
+          tmp.innerHTML = buildPost(postSeq, type);
+          frag.appendChild(tmp.firstElementChild);
+        }
+        if (loadSentinel && loadSentinel.parentNode === feedColumn) {
+          feedColumn.insertBefore(frag, loadSentinel);
+        } else {
+          feedColumn.appendChild(frag);
+        }
+        observeNewVideos();
+      }
+
+      function ensureVideoSrc(v) {
+        if (!v.getAttribute("src") && v.dataset.src) {
+          v.src = v.dataset.src;
+        }
+      }
+
+      function observeNewVideos() {
+        if (!videoPlayObserver || !window.IntersectionObserver) return;
+        feedColumn.querySelectorAll("video.post-video:not([data-io-wired])").forEach(function (v) {
+          v.setAttribute("data-io-wired", "1");
+          videoPlayObserver.observe(v);
+        });
+      }
+
+      function initVideoPlaybackObserver() {
+        if (!window.IntersectionObserver) {
+          feedColumn.querySelectorAll("video.post-video").forEach(function (v) {
+            ensureVideoSrc(v);
+            v.play().catch(function () {});
+          });
+          return;
+        }
+        videoPlayObserver = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              var v = entry.target;
+              if (v.tagName !== "VIDEO") return;
+              if (entry.intersectionRatio >= 0.8) {
+                ensureVideoSrc(v);
+                v.play().catch(function () {});
+              } else {
+                v.pause();
+              }
+            });
+          },
+          { root: feedScroller, threshold: [0, 0.25, 0.5, 0.8, 1] }
+        );
+        observeNewVideos();
+      }
+
+      function closePopover() {
+        if (!openPopover) return;
+        var root = openPopover.root;
+        var btn = openPopover.btn;
+        if (root) root.hidden = true;
+        if (btn) btn.setAttribute("aria-expanded", "false");
+        openPopover = null;
+      }
+
+      function openPopoverFor(btn, pop) {
+        closePopover();
+        pop.hidden = false;
+        btn.setAttribute("aria-expanded", "true");
+        openPopover = { btn: btn, root: pop };
+      }
+
+      function onDocClick(ev) {
+        if (!openPopover) return;
+        if (openPopover.root.contains(ev.target) || openPopover.btn.contains(ev.target)) return;
+        closePopover();
+      }
+
+      function wireFeedInteractions() {
+        feedColumn.addEventListener("click", function (ev) {
+          var t = ev.target;
+          var saveBtn = t.closest("[data-save]");
+          if (saveBtn && feedColumn.contains(saveBtn)) {
+            var post = saveBtn.closest(".post");
+            openSheetPostId = post ? post.getAttribute("data-post-id") : null;
+            renderCollectionList();
+            collectionSheet.setAttribute("aria-hidden", "false");
+            feedScroller.style.overflow = "hidden";
+            return;
+          }
+          var jBtn = t.closest("[data-justice-toggle]");
+          if (jBtn && feedColumn.contains(jBtn)) {
+            ev.stopPropagation();
+            var anchor = jBtn.closest(".justice-anchor");
+            var pop = anchor ? anchor.querySelector(".justice-popover") : null;
+            if (!pop) return;
+            var expanded = jBtn.getAttribute("aria-expanded") === "true";
+            if (expanded) closePopover();
+            else openPopoverFor(jBtn, pop);
+            return;
+          }
+        });
+
+        feedColumn.addEventListener("input", function (ev) {
+          var inp = ev.target;
+          if (inp.tagName !== "INPUT" || inp.type !== "range") return;
+          var pop = inp.closest(".justice-popover");
+          if (!pop || !feedColumn.contains(pop)) return;
+          var dim = inp.getAttribute("data-dim");
+          var out = pop.querySelector("output[data-out=\"" + dim + "\"]");
+          if (out) out.textContent = inp.value;
+        });
+
+        feedColumn.addEventListener("submit", function (ev) {
+          var form = ev.target;
+          if (!form.matches("[data-comment-form]")) return;
+          ev.preventDefault();
+          var post = form.closest(".post");
+          var input = form.querySelector("input");
+          var list = post.querySelector("[data-comments]");
+          if (!input || !list || !input.value.trim()) return;
+          var p = document.createElement("p");
+          p.className = "comment";
+          var strong = document.createElement("strong");
+          strong.textContent = "@you";
+          p.appendChild(strong);
+          p.appendChild(document.createTextNode(" " + input.value.trim()));
+          list.appendChild(p);
+          input.value = "";
+        });
+
+        document.addEventListener("click", onDocClick);
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            closePopover();
+            closeCollectionSheet();
+          }
+        });
+      }
+
+      function renderCollectionList() {
+        collectionList.innerHTML = COLLECTIONS.map(function (name) {
+          return (
+            "<li><button type=\"button\" class=\"collection-sheet__item\" data-pick-collection=\"" +
+            esc(name) +
+            "\">" +
+            esc(name) +
+            "</button></li>"
+          );
+        }).join("");
+      }
+
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add("toast--show");
+        if (toastTimer) window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+          toastEl.classList.remove("toast--show");
+        }, 2200);
+      }
+
+      function closeCollectionSheet() {
+        collectionSheet.setAttribute("aria-hidden", "true");
+        feedScroller.style.overflow = "";
+        openSheetPostId = null;
+      }
+
+      function wireSheet() {
+        sheetBackdrop.addEventListener("click", closeCollectionSheet);
+        collectionList.addEventListener("click", function (ev) {
+          var btn = ev.target.closest("[data-pick-collection]");
+          if (!btn) return;
+          var name = btn.getAttribute("data-pick-collection");
+          try {
+            var raw = localStorage.getItem("yinspire_quick_saves_v1");
+            var arr = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(arr)) arr = [];
+            arr.push({ at: Date.now(), postId: openSheetPostId, collection: name });
+            localStorage.setItem("yinspire_quick_saves_v1", JSON.stringify(arr.slice(-80)));
+          } catch (err) {}
+          showToast("Saved to " + name);
+          closeCollectionSheet();
+        });
+      }
+
+      function wireInfiniteScroll() {
+        loadSentinel = document.createElement("div");
+        loadSentinel.className = "load-sentinel";
+        loadSentinel.setAttribute("aria-hidden", "true");
+        feedColumn.appendChild(loadSentinel);
+
+        if (!window.IntersectionObserver) {
+          appendPosts(4);
+          initVideoPlaybackObserver();
+          return;
+        }
+
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (en) {
+              if (!en.isIntersecting || loading) return;
+              loading = true;
+              window.setTimeout(function () {
+                appendPosts(3);
+                observeNewVideos();
+                loading = false;
+              }, 200);
+            });
+          },
+          { root: feedScroller, rootMargin: "320px 0px", threshold: 0 }
+        );
+        io.observe(loadSentinel);
+
+        appendPosts(4);
+        initVideoPlaybackObserver();
+      }
+
+      function boot() {
+        wireFeedInteractions();
+        wireSheet();
+        wireInfiniteScroll();
+        if (headerCreateBtn) {
+          headerCreateBtn.addEventListener("click", function () {
+            window.location.href = "create.html";
+          });
+        }
+        feedScroller.focus({ preventScroll: true });
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

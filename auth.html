@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Sign in · Yinspire</title>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem("yinspire_session")) {
+          window.location.href = "index.html";
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --helv: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --institutional: #1d1d1f;
+      --subtext: #86868b;
+      --line: #e5e5e5;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: var(--helv);
+      background: #ffffff;
+      color: var(--institutional);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #gravity-cloth {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+
+    @media (max-width: 767px) {
+      #gravity-cloth {
+        display: none;
+      }
+    }
+
+    .auth-shell {
+      min-height: 100%;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(28px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+        max(32px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+      transition: opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    body.auth--exit .auth-shell {
+      opacity: 0;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 48px 44px 40px;
+      background: #ffffff;
+      border-radius: var(--radius-g2);
+      box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 24px 64px -32px rgba(0, 0, 0, 0.12),
+        0 8px 24px -16px rgba(0, 0, 0, 0.06);
+      transition: opacity 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+        box-shadow 0.5s ease;
+      will-change: opacity, transform;
+    }
+
+    body.auth--busy .auth-card {
+      box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 28px 72px -28px rgba(0, 0, 0, 0.14);
+    }
+
+    body.auth--exit .auth-card {
+      opacity: 0;
+      transform: scale(0.982) translateY(-8px);
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .auth-shell,
+      .auth-card {
+        transition-duration: 0.01ms;
+      }
+
+      body.auth--exit .auth-card {
+        transform: none;
+      }
+    }
+
+    .auth-wordmark {
+      margin: 0;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--institutional);
+    }
+
+    .auth-tagline {
+      margin: 12px 0 0;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.35;
+      color: var(--subtext);
+    }
+
+    .auth-form {
+      margin-top: 40px;
+    }
+
+    .auth-field {
+      margin-bottom: 28px;
+    }
+
+    .auth-field label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--subtext);
+    }
+
+    .auth-field input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 17px;
+      font-weight: 400;
+      padding: 14px 0 12px;
+      border: none;
+      border-radius: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: var(--institutional);
+    }
+
+    .auth-field input::placeholder {
+      color: #aeaeb2;
+      font-weight: 400;
+    }
+
+    .auth-field input:focus {
+      outline: none;
+      border-bottom-color: #000000;
+    }
+
+    .auth-field--signup-only {
+      display: none;
+    }
+
+    body.auth--signup .auth-field--signup-only {
+      display: block;
+    }
+
+    .auth-submit {
+      width: 100%;
+      margin-top: 12px;
+      font-family: var(--helv);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      padding: 20px 28px;
+      border: none;
+      border-radius: 999px;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .auth-submit:hover:not(:disabled) {
+      opacity: 0.92;
+    }
+
+    .auth-submit:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    .auth-submit:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .auth-submit:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .auth-toggle-wrap {
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      text-align: center;
+    }
+
+    .auth-toggle {
+      font-family: var(--helv);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: var(--subtext);
+      background: none;
+      border: none;
+      padding: 6px 4px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .auth-toggle:hover {
+      color: var(--institutional);
+    }
+
+    .auth-toggle:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+      border-radius: var(--radius-g2);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gravity-cloth" aria-hidden="true"></canvas>
+
+  <div class="auth-shell">
+    <main class="auth-card" id="authCard" aria-labelledby="authTitle">
+      <h1 class="auth-wordmark" id="authTitle">Yinspire</h1>
+      <p class="auth-tagline">Enter the standard.</p>
+
+      <form class="auth-form" id="authForm" novalidate autocomplete="on">
+        <div class="auth-field auth-field--signup-only">
+          <label for="authName">Full name</label>
+          <input id="authName" name="name" type="text" autocomplete="name" placeholder="Institutional name" />
+        </div>
+        <div class="auth-field">
+          <label for="authEmail">Email</label>
+          <input id="authEmail" name="email" type="email" autocomplete="email" required placeholder="you@institution.org" />
+        </div>
+        <div class="auth-field">
+          <label for="authPassword">Password</label>
+          <input
+            id="authPassword"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            placeholder="••••••••"
+          />
+        </div>
+        <div class="auth-field auth-field--signup-only">
+          <label for="authPassword2">Confirm password</label>
+          <input
+            id="authPassword2"
+            name="password2"
+            type="password"
+            autocomplete="new-password"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button type="submit" class="auth-submit" id="authSubmit">Continue to Yinspire</button>
+      </form>
+
+      <div class="auth-toggle-wrap">
+        <button type="button" class="auth-toggle" id="authModeToggle" aria-pressed="false">
+          Join the Institution
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var form = document.getElementById("authForm");
+      var email = document.getElementById("authEmail");
+      var password = document.getElementById("authPassword");
+      var password2 = document.getElementById("authPassword2");
+      var nameEl = document.getElementById("authName");
+      var submitBtn = document.getElementById("authSubmit");
+      var modeToggle = document.getElementById("authModeToggle");
+      var signup = false;
+
+      function setSignup(on) {
+        signup = !!on;
+        document.body.classList.toggle("auth--signup", signup);
+        modeToggle.setAttribute("aria-pressed", signup ? "true" : "false");
+        modeToggle.textContent = signup ? "Already within the Institution?" : "Join the Institution";
+        password.setAttribute("autocomplete", signup ? "new-password" : "current-password");
+        submitBtn.textContent = "Continue to Yinspire";
+      }
+
+      modeToggle.addEventListener("click", function () {
+        setSignup(!signup);
+      });
+
+      function validEmail(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var em = email.value.trim();
+        var pw = password.value;
+        if (!validEmail(em) || pw.length < 1) {
+          return;
+        }
+        if (signup) {
+          if (String(nameEl.value || "").trim().length < 1) {
+            return;
+          }
+          if (pw.length < 8) {
+            return;
+          }
+          if (pw !== password2.value) {
+            return;
+          }
+        }
+        submitBtn.disabled = true;
+        document.body.classList.add("auth--busy");
+
+        var reduceMotion =
+          window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var VALIDATION_MS = reduceMotion ? 140 : 780;
+        var EXIT_NAV_MS = reduceMotion ? 40 : 480;
+
+        window.setTimeout(function () {
+          try {
+            localStorage.setItem(
+              "yinspire_session",
+              JSON.stringify({
+                v: 1,
+                at: Date.now(),
+                mode: signup ? "signup" : "login",
+                email: em
+              })
+            );
+          } catch (err) {
+            localStorage.setItem("yinspire_session", "1");
+          }
+          document.body.classList.remove("auth--busy");
+          document.body.classList.add("auth--exit");
+          window.setTimeout(function () {
+            window.location.href = "index.html";
+          }, EXIT_NAV_MS);
+        }, VALIDATION_MS);
+      });
+
+      function initGravityCloth() {
+        if (window.innerWidth < 768) {
+          return;
+        }
+        var canvas = document.getElementById("gravity-cloth");
+        if (!canvas) {
+          return;
+        }
+        var ctx = canvas.getContext("2d");
+        if (!ctx) {
+          return;
+        }
+        var COLS = 26;
+        var ROWS = 26;
+        var n = COLS * ROWS;
+        var restX = new Float32Array(n);
+        var restY = new Float32Array(n);
+        var px = new Float32Array(n);
+        var py = new Float32Array(n);
+        var vx = new Float32Array(n);
+        var vy = new Float32Array(n);
+        var fax = new Float32Array(n);
+        var fay = new Float32Array(n);
+        var mw = 1;
+        var mh = 1;
+        var mx = 0;
+        var my = 0;
+
+        function I(i, j) {
+          return j * COLS + i;
+        }
+
+        function layoutRest() {
+          var pad = 0.08;
+          var x0 = mw * pad;
+          var y0 = mh * pad;
+          var x1 = mw * (1 - pad);
+          var y1 = mh * (1 - pad);
+          var i;
+          var j;
+          for (j = 0; j < ROWS; j++) {
+            for (i = 0; i < COLS; i++) {
+              var k = I(i, j);
+              restX[k] = x0 + (i / (COLS - 1)) * (x1 - x0);
+              restY[k] = y0 + (j / (ROWS - 1)) * (y1 - y0);
+              px[k] = 0;
+              py[k] = 0;
+              vx[k] = 0;
+              vy[k] = 0;
+            }
+          }
+        }
+
+        function resize() {
+          var dpr = Math.min(window.devicePixelRatio || 1, 2);
+          mw = window.innerWidth;
+          mh = window.innerHeight;
+          mx = mw * 0.5;
+          my = mh * 0.45;
+          canvas.width = Math.max(1, Math.floor(mw * dpr));
+          canvas.height = Math.max(1, Math.floor(mh * dpr));
+          canvas.style.width = mw + "px";
+          canvas.style.height = mh + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          layoutRest();
+        }
+
+        function setPtr(e) {
+          var rect = canvas.getBoundingClientRect();
+          mx = e.clientX - rect.left;
+          my = e.clientY - rect.top;
+        }
+
+        window.addEventListener("pointermove", setPtr, { passive: true });
+        window.addEventListener("pointerdown", setPtr, { passive: true });
+
+        var kAnchor = 3;
+        var kStruct = 88;
+        var damping = 0.86;
+        var kMouse = 2;
+        var A = 110;
+        var dt = 0.2;
+        var SUB = 3;
+
+        function step() {
+          var sig = Math.min(mw, mh) * 0.19;
+          var tx = mx;
+          var ty = my;
+          var s;
+          var kk;
+          var i;
+          var j;
+          var dx;
+          var dy;
+          var len;
+          var L0;
+          var mag;
+          var inv;
+          var cx;
+          var cy;
+          var r;
+          var gauss;
+          var gx;
+          var gy;
+
+          function springEdge(a, b) {
+            var ax = restX[a] + px[a];
+            var ay = restY[a] + py[a];
+            var bx = restX[b] + px[b];
+            var by = restY[b] + py[b];
+            dx = bx - ax;
+            dy = by - ay;
+            len = Math.sqrt(dx * dx + dy * dy);
+            L0 = Math.sqrt(
+              (restX[b] - restX[a]) * (restX[b] - restX[a]) + (restY[b] - restY[a]) * (restY[b] - restY[a])
+            );
+            if (len < 1e-5) {
+              return;
+            }
+            inv = 1 / len;
+            mag = kStruct * (len - L0);
+            var sx = mag * dx * inv;
+            var sy = mag * dy * inv;
+            fax[a] += sx;
+            fay[a] += sy;
+            fax[b] -= sx;
+            fay[b] -= sy;
+          }
+
+          for (s = 0; s < SUB; s++) {
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] = 0;
+              fay[kk] = 0;
+            }
+
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] += -kAnchor * px[kk] - damping * vx[kk];
+              fay[kk] += -kAnchor * py[kk] - damping * vy[kk];
+
+              cx = restX[kk] + px[kk];
+              cy = restY[kk] + py[kk];
+              dx = tx - cx;
+              dy = ty - cy;
+              r = Math.sqrt(dx * dx + dy * dy);
+              gauss = A * Math.exp(-(r * r) / (2 * sig * sig));
+              if (r > 1e-4) {
+                inv = 1 / r;
+                gx = dx * inv;
+                gy = dy * inv;
+              } else {
+                gx = 0;
+                gy = 0;
+              }
+              fax[kk] += kMouse * gauss * gx;
+              fay[kk] += kMouse * gauss * gy;
+            }
+
+            for (j = 0; j < ROWS; j++) {
+              for (i = 0; i < COLS - 1; i++) {
+                springEdge(I(i, j), I(i + 1, j));
+              }
+            }
+            for (j = 0; j < ROWS - 1; j++) {
+              for (i = 0; i < COLS; i++) {
+                springEdge(I(i, j), I(i, j + 1));
+              }
+            }
+
+            for (kk = 0; kk < n; kk++) {
+              vx[kk] += fax[kk] * dt;
+              vy[kk] += fay[kk] * dt;
+              px[kk] += vx[kk] * dt;
+              py[kk] += vy[kk] * dt;
+            }
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, mw, mh);
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = "rgba(0,0,0,0.018)";
+          ctx.fillStyle = "rgba(0,0,0,0.028)";
+          var i;
+          var j;
+          var a;
+          var b;
+          var pa;
+          var pb;
+
+          function posFor(index) {
+            return { x: restX[index] + px[index], y: restY[index] + py[index] };
+          }
+
+          ctx.beginPath();
+          for (j = 0; j < ROWS; j++) {
+            for (i = 0; i < COLS - 1; i++) {
+              a = I(i, j);
+              b = I(i + 1, j);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          for (j = 0; j < ROWS - 1; j++) {
+            for (i = 0; i < COLS; i++) {
+              a = I(i, j);
+              b = I(i, j + 1);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          ctx.stroke();
+
+          for (var pi = 0; pi < n; pi++) {
+            pa = posFor(pi);
+            ctx.beginPath();
+            ctx.arc(pa.x, pa.y, 1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        function loop() {
+          step();
+          draw();
+          window.requestAnimationFrame(loop);
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+        window.requestAnimationFrame(loop);
+      }
+
+      initGravityCloth();
+    })();
+  </script>
+</body>
+</html>

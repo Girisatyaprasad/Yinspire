@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <title>Profile · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --apple-grey: #f5f5f7;
+      --label-grey: #86868b;
+      --header-h: 64px;
+      --gutter: 24px;
+      --curator-gap: 32px;
+      --helv: Helvetica, Arial, "Helvetica Neue", sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--helv);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    body.router-project-open {
+      overflow: hidden;
+    }
+
+    #gravity-cloth {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+
+    @media (max-width: 767px) {
+      #gravity-cloth {
+        display: none;
+      }
+    }
+
+    .shell-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px clamp(16px, 3vw, 32px);
+      min-height: var(--header-h);
+      padding: 10px max(28px, env(safe-area-inset-right)) 10px max(28px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__left {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .shell-header__center {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .shell-header__wordmark:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-matrix {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(10px, 1.5vw, 22px);
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .shell-matrix::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shell-matrix__link {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 6px;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-matrix__link:hover {
+      color: var(--muted);
+    }
+
+    .shell-matrix__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-matrix__link:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-search {
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+    }
+
+    .shell-search__inner {
+      position: relative;
+    }
+
+    .shell-search-hero {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding: 36px var(--gutter) 12px;
+      box-sizing: border-box;
+    }
+
+    .shell-search-hero .shell-search {
+      width: 440px;
+      max-width: min(440px, 100%);
+    }
+
+    #app-router.is-project .shell-search-hero {
+      visibility: hidden;
+      opacity: 0;
+      height: 0;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: opacity 0.32s var(--ease), visibility 0.32s;
+    }
+
+    .shell-search__input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: #1d1d1f;
+    }
+
+    .shell-search__input::placeholder {
+      color: #86868b;
+      font-weight: 400;
+    }
+
+    .shell-search__input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .search-suggestions {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      margin: 0;
+      padding: 6px 0;
+      list-style: none;
+      max-height: min(360px, 50vh);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: var(--radius-g2);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.18);
+      z-index: 60;
+    }
+
+    .search-suggestions[hidden] {
+      display: none !important;
+    }
+
+    .search-suggestions__label {
+      padding: 8px 16px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .search-suggestions__item {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      display: block;
+    }
+
+    .search-suggestions__item--active .search-suggestions__title,
+    .search-suggestions__item:focus-visible .search-suggestions__title,
+    .search-suggestions__item:hover .search-suggestions__title {
+      color: #007aff;
+    }
+
+    .search-suggestions__item-inner {
+      padding: 10px 16px 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .search-suggestions__item:last-child .search-suggestions__item-inner {
+      border-bottom: none;
+    }
+
+    .search-suggestions__title {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #1d1d1f;
+    }
+
+    .search-suggestions__meta {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .shell-header__right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px 12px;
+      min-width: 0;
+    }
+
+    .shell-workspace {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-workspace:hover {
+      border-color: rgba(0, 0, 0, 0.22);
+    }
+
+    .shell-workspace[aria-current="page"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .shell-workspace:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .shell-header__link--identity {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 12px;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .shell-header__link--identity:hover {
+      color: var(--muted);
+    }
+
+    .shell-header__link--identity.shell-header__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-header__link--identity:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-header__create {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .shell-header__create:hover {
+      opacity: 0.9;
+    }
+
+    .shell-header__create:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .shell-main {
+      position: relative;
+      z-index: 10;
+      padding-top: var(--header-h);
+      min-height: 100vh;
+      background: transparent;
+    }
+
+    #app-router {
+      position: relative;
+      min-height: calc(100vh - var(--header-h));
+      overflow-x: hidden;
+    }
+
+    .view-feed {
+      padding: 0 0 max(48px, env(safe-area-inset-bottom));
+    }
+
+    .feed-stage {
+      transition: transform 0.42s var(--ease), opacity 0.42s var(--ease);
+      transform: scale(1) translateZ(0);
+      opacity: 1;
+      transform-origin: center center;
+      will-change: auto;
+    }
+
+    #app-router.is-project .feed-stage {
+      transform: scale(0.95);
+      opacity: 0.1;
+      pointer-events: none;
+      user-select: none;
+      will-change: transform, opacity;
+    }
+
+    .profile-hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 40px 40px;
+    }
+
+    .profile-hero__surface {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 28px 40px;
+      padding: 32px 36px;
+      border-radius: var(--radius-g2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(250, 250, 252, 0.98) 100%);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 18px 48px -28px rgba(0, 0, 0, 0.12);
+    }
+
+    .profile-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: linear-gradient(145deg, #e8e8ed, #f5f5f7 40%, #ffffff);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .profile-identity__name {
+      margin: 0;
+      font-size: clamp(28px, 4.2vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      color: var(--ink);
+    }
+
+    .profile-identity__role {
+      margin: 10px 0 0;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--label-grey);
+      max-width: 52ch;
+    }
+
+    .profile-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 0;
+      margin-left: auto;
+    }
+
+    .profile-stat {
+      min-width: 108px;
+      padding: 14px 18px;
+      border-radius: var(--radius-g2);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-stat__label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .profile-stat__value {
+      display: block;
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
+    .profile-section {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 8px 40px 12px;
+    }
+
+    .profile-section__title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .profile-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 64px 24px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .curator-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--curator-gap);
+      padding: 0 40px 120px;
+      max-width: 1440px;
+      margin: 0 auto;
+      will-change: auto;
+    }
+
+    #app-router.is-project .curator-grid {
+      will-change: transform;
+    }
+
+    @media (max-width: 1100px) {
+      .curator-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .curator-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-identity__name {
+        font-size: clamp(28px, 9vw, 48px);
+      }
+    }
+
+    .curator-cell {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .curator-cell:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 4px;
+      border-radius: var(--radius-g2);
+    }
+
+    .curator-cell__frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: var(--radius-g2);
+      background: var(--apple-grey);
+      will-change: transform;
+      transition: transform 0.32s var(--ease), box-shadow 0.32s var(--ease);
+      transform: scale(1) translateZ(0);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75) inset, 0 10px 32px -18px rgba(0, 0, 0, 0.14);
+    }
+
+    .curator-cell:hover .curator-cell__frame,
+    .curator-cell:focus-visible .curator-cell__frame {
+      transform: scale(1.015) translateY(-2px);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 20px 48px -22px rgba(0, 0, 0, 0.18);
+    }
+
+    .curator-cell__frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    .curator-cell__play {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.22);
+      opacity: 0;
+      transition: opacity 0.28s var(--ease);
+      will-change: opacity;
+      pointer-events: none;
+      font-size: 36px;
+      line-height: 1;
+      color: #ffffff;
+    }
+
+    .curator-cell:hover .curator-cell__play,
+    .curator-cell:focus-visible .curator-cell__play {
+      opacity: 1;
+    }
+
+    .curator-cell__law {
+      margin: 10px 0 0;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+    }
+
+    .project-overlay {
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      background: #ffffff;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      transform: translate3d(100%, 0, 0);
+      transition: transform 0.46s var(--ease);
+      will-change: transform;
+    }
+
+    #app-router.is-project #project-overlay {
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+    }
+
+    .project-overlay__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px var(--gutter) 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .project-overlay__close {
+      font-family: var(--helv);
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.06);
+      color: #1d1d1f;
+      cursor: pointer;
+    }
+
+    .project-overlay__close:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .project-overlay__close:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .project-overlay__back {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.06);
+      color: #1d1d1f;
+      cursor: pointer;
+    }
+
+    .project-overlay__back:hover {
+      background: rgba(0, 0, 0, 0.09);
+    }
+
+    .project-overlay__back:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+    }
+
+    .project-overlay__hero {
+      width: 100%;
+      max-width: min(1240px, calc(100vw - 2 * var(--gutter)));
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    .project-overlay__hero-inner {
+      border-radius: var(--radius-g2);
+      overflow: hidden;
+      background: var(--apple-grey);
+      aspect-ratio: 16 / 9;
+      max-height: min(78vh, 900px);
+    }
+
+    .project-overlay__hero-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .project-overlay__body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 36px var(--gutter) 140px;
+    }
+
+    .project-overlay__label {
+      margin: 0 0 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .project-overlay__title {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 3.2vw, 34px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+    }
+
+    .project-overlay__lead {
+      margin: 0 0 20px;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #424245;
+    }
+
+    .project-overlay__physics {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: #3a3a3c;
+    }
+
+    .project-overlay__cta {
+      position: fixed;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      width: calc(100% - 48px);
+      max-width: 420px;
+    }
+
+    .btn-open-player {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-family: var(--helv);
+      font-size: 16px;
+      font-weight: 600;
+      padding: 18px 28px;
+      border-radius: 999px;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      will-change: transform;
+    }
+
+    .btn-open-player:hover {
+      opacity: 0.94;
+    }
+
+    .btn-open-player:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gravity-cloth" aria-hidden="true"></canvas>
+  <header class="shell-header" aria-label="Primary">
+    <div class="shell-header__left">
+      <a class="shell-header__wordmark" href="index.html#discovery" id="wordmark">Yinspire</a>
+    </div>
+    <div class="shell-header__center">
+      <nav class="shell-matrix" aria-label="The Matrix">
+        <a class="shell-matrix__link" href="index.html#discovery" id="navHome" title="The curated Final standard">Home</a>
+        <a class="shell-matrix__link" href="community.html" title="WIP and social playground">Community</a>
+        <a class="shell-matrix__link" href="collection.html" title="Your collections and series">Library</a>
+        <a class="shell-matrix__link" href="search.html" title="Search Matrix — physics and feeling">Search</a>
+        <a class="shell-matrix__link" href="activity.html" title="Activity hub — audits, mentions, series">Activity</a>
+        <a class="shell-matrix__link" href="docs.html" title="Laws of Motion">Docs</a>
+      </nav>
+    </div>
+    <div class="shell-header__right">
+      <a href="teams.html" class="shell-workspace" id="headerWorkspace" hidden data-workspace-link>Workspace</a>
+      <a
+        class="shell-header__link--identity shell-header__link--active"
+        href="profile.html"
+        id="navProfile"
+        aria-current="page"
+        >Profile</a>
+      <button type="button" class="shell-header__create" id="headerCreateBtn">Create</button>
+    </div>
+  </header>
+
+  <script>
+    (function () {
+      var KEY = "yinspire_verified_team_v1";
+      function syncWorkspaceNav() {
+        var el = document.getElementById("headerWorkspace");
+        if (!el) return;
+        var on = false;
+        try {
+          on = !!localStorage.getItem(KEY);
+        } catch (e) {}
+        el.hidden = !on;
+        var onTeams = /teams\.html/i.test(window.location.pathname + window.location.href);
+        if (on && onTeams) el.setAttribute("aria-current", "page");
+        else el.removeAttribute("aria-current");
+      }
+      syncWorkspaceNav();
+      window.addEventListener("storage", syncWorkspaceNav);
+      window.addEventListener("yinspire-team-changed", syncWorkspaceNav);
+    })();
+  </script>
+
+  <main class="shell-main">
+    <div id="app-router" class="app-router">
+      <div class="shell-search-hero" role="search">
+        <form class="shell-search" action="search.html" method="get">
+          <div class="shell-search__inner">
+            <label class="visually-hidden" for="shellSearch">Search</label>
+            <input
+              id="shellSearch"
+              name="q"
+              class="shell-search__input"
+              type="search"
+              placeholder="Search studies, laws…"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="true"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="profileSearchSuggestions"
+              aria-autocomplete="list"
+            />
+            <ul
+              id="profileSearchSuggestions"
+              class="search-suggestions"
+              role="listbox"
+              aria-label="Suggestions"
+              hidden
+            ></ul>
+          </div>
+        </form>
+      </div>
+      <div id="profile-root" class="view-feed">
+        <div class="feed-stage" id="feedStage">
+          <div class="profile-hero">
+            <div class="profile-hero__surface">
+              <div class="profile-avatar" aria-hidden="true"></div>
+              <div>
+                <h1 class="profile-identity__name">Vankayalapati Giri Patya Prasad</h1>
+                <p class="profile-identity__role">Brand Designer · Standardizing interaction physics for Yinspire</p>
+              </div>
+              <div class="profile-stats" role="list">
+                <div class="profile-stat" role="listitem">
+                  <span class="profile-stat__label">Projects</span>
+                  <span class="profile-stat__value">24</span>
+                </div>
+                <div class="profile-stat" role="listitem">
+                  <span class="profile-stat__label">Collections</span>
+                  <span class="profile-stat__value">12</span>
+                </div>
+                <div class="profile-stat" role="listitem">
+                  <span class="profile-stat__label">Avg Justice</span>
+                  <span class="profile-stat__value">98%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="profile-section">
+            <h2 class="profile-section__title">Studies</h2>
+          </div>
+          <div class="curator-grid" id="curatorGrid" role="list"></div>
+        </div>
+      </div>
+
+      <article id="project-overlay" class="project-overlay" aria-hidden="true">
+        <div class="project-overlay__top">
+          <button type="button" class="project-overlay__back" id="btnBackProfile">← Profile</button>
+          <button type="button" class="project-overlay__close" id="btnCloseProject" aria-label="Close">×</button>
+        </div>
+        <div class="project-overlay__hero">
+          <div class="project-overlay__hero-inner" id="projectHero"></div>
+        </div>
+        <div class="project-overlay__body">
+          <p class="project-overlay__label">Physics</p>
+          <h1 id="projectTitle" class="project-overlay__title"></h1>
+          <p id="projectLead" class="project-overlay__lead"></p>
+          <p id="projectPhysics" class="project-overlay__physics"></p>
+        </div>
+        <div class="project-overlay__cta">
+          <button type="button" class="btn-open-player" id="openPlayerBtn">Open in Player</button>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var PHOTO = "assets/image_a1ca9e.jpg";
+      var POSITIONS = [
+        "8% 50%",
+        "22% 48%",
+        "38% 52%",
+        "52% 50%",
+        "68% 48%",
+        "82% 50%",
+        "15% 42%",
+        "45% 55%",
+        "58% 40%",
+        "72% 52%",
+        "28% 58%",
+        "88% 45%"
+      ];
+      var LAWS = ["Law: Spring-Damped", "Law: Expo-Out"];
+
+      var PROJECTS = [];
+      var i;
+      for (i = 0; i < 12; i++) {
+        PROJECTS.push({
+          id: i + 1,
+          title: "Study " + (i + 1),
+          lead: "Curated crop from the master pack.",
+          physics: LAWS[i % 2].replace("Law: ", "") + " easing profile; 16:9 optical lock.",
+          src: PHOTO,
+          heroSrc: PHOTO,
+          imgPos: POSITIONS[i],
+          law: LAWS[i % 2]
+        });
+      }
+
+      var routerEl = document.getElementById("app-router");
+      var gridEl = document.getElementById("curatorGrid");
+      var viewProject = document.getElementById("project-overlay");
+      var projectHero = document.getElementById("projectHero");
+      var projectTitle = document.getElementById("projectTitle");
+      var projectLead = document.getElementById("projectLead");
+      var projectPhysics = document.getElementById("projectPhysics");
+      var openPlayerBtn = document.getElementById("openPlayerBtn");
+      var btnBack = document.getElementById("btnBackProfile");
+      var btnClose = document.getElementById("btnCloseProject");
+      var navHome = document.getElementById("navHome");
+      var navProfile = document.getElementById("navProfile");
+      var headerWorkspace = document.getElementById("headerWorkspace");
+
+      var currentProjectId = null;
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      var RECENT_SEARCH_KEY = "yinspire_recent_searches_profile_v1";
+
+      function normalizeSearchText(s) {
+        return String(s || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function levenshtein(a, b) {
+        a = String(a || "");
+        b = String(b || "");
+        if (a === b) {
+          return 0;
+        }
+        if (!a.length) {
+          return b.length;
+        }
+        if (!b.length) {
+          return a.length;
+        }
+        if (a.length > 36) {
+          a = a.slice(0, 36);
+        }
+        if (b.length > 36) {
+          b = b.slice(0, 36);
+        }
+        var v0 = new Array(b.length + 1);
+        var v1 = new Array(b.length + 1);
+        var i;
+        var j;
+        var c0;
+        var c1;
+        var c2;
+        for (i = 0; i <= b.length; i++) {
+          v0[i] = i;
+        }
+        for (i = 0; i < a.length; i++) {
+          v1[0] = i + 1;
+          for (j = 0; j < b.length; j++) {
+            c0 = v0[j] + (a[i] === b[j] ? 0 : 1);
+            c1 = v1[j] + 1;
+            c2 = v0[j + 1] + 1;
+            v1[j + 1] = c0 < c1 ? (c0 < c2 ? c0 : c2) : c1 < c2 ? c1 : c2;
+          }
+          var tmp = v0;
+          v0 = v1;
+          v1 = tmp;
+        }
+        return v0[b.length];
+      }
+
+      function readRecentSearches() {
+        try {
+          var raw = sessionStorage.getItem(RECENT_SEARCH_KEY);
+          var arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr)
+            ? arr.filter(function (x) {
+                return typeof x === "string" && x.trim();
+              }).slice(0, 6)
+            : [];
+        } catch (eR) {
+          return [];
+        }
+      }
+
+      function pushRecentSearch(q) {
+        var nq = String(q || "").trim();
+        if (nq.length < 2) {
+          return;
+        }
+        var list = readRecentSearches().filter(function (x) {
+          return normalizeSearchText(x) !== normalizeSearchText(nq);
+        });
+        list.unshift(nq);
+        try {
+          sessionStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(list.slice(0, 6)));
+        } catch (eP) {}
+      }
+
+      function scoreProjectSearch(p, queryNorm) {
+        if (!queryNorm) {
+          return { score: 1000, hint: "" };
+        }
+        var titleN = normalizeSearchText(p.title);
+        var blob = normalizeSearchText(
+          (p.title || "") + " " + (p.lead || "") + " " + (p.physics || "") + " " + (p.law || "")
+        );
+        var score = 0;
+        var hint = "";
+        if (blob.indexOf(queryNorm) !== -1) {
+          score += 520;
+        }
+        var qWords = queryNorm.split(" ").filter(Boolean);
+        var wi;
+        for (wi = 0; wi < qWords.length; wi++) {
+          var qw = qWords[wi];
+          if (qw.length < 2) {
+            continue;
+          }
+          if (blob.indexOf(qw) !== -1) {
+            score += 110;
+          }
+          var parts = blob.split(" ");
+          var ti;
+          for (ti = 0; ti < parts.length; ti++) {
+            var tok = parts[ti];
+            if (!tok || tok.length < 3) {
+              continue;
+            }
+            var d = levenshtein(qw, tok);
+            if (d === 0) {
+              continue;
+            }
+            if (qw.length >= 4 && d <= 2) {
+              score += 90 - d * 28;
+              if (!hint && tok !== qw) {
+                hint = "Close match to “" + tok + "”.";
+              }
+            }
+          }
+          var dt = levenshtein(qw, titleN.replace(/\s/g, ""));
+          if (qw.length >= 4 && dt <= 2) {
+            score += 80 - dt * 26;
+            if (!hint) {
+              hint = "Near “" + p.title + "”.";
+            }
+          }
+        }
+        if (titleN.indexOf(queryNorm) === 0) {
+          score += 70;
+        }
+        return { score: score, hint: hint };
+      }
+
+      function rankProjectsForSearch(query) {
+        var qn = normalizeSearchText(query);
+        var ranked = [];
+        var i;
+        for (i = 0; i < PROJECTS.length; i++) {
+          var p = PROJECTS[i];
+          var r = scoreProjectSearch(p, qn);
+          if (r.score > 0 || !qn) {
+            ranked.push({ p: p, score: r.score, hint: r.hint });
+          }
+        }
+        ranked.sort(function (a, b) {
+          return b.score - a.score;
+        });
+        return ranked;
+      }
+
+      function applyProfileSearchFilter(query) {
+        var qn = normalizeSearchText(query);
+        if (!qn) {
+          renderGrid(null);
+          return;
+        }
+        var ranked = rankProjectsForSearch(query);
+        var setObj = Object.create(null);
+        var threshold = 72;
+        var j;
+        for (j = 0; j < ranked.length; j++) {
+          if (ranked[j].score >= threshold) {
+            setObj[ranked[j].p.id] = true;
+          }
+        }
+        if (!Object.keys(setObj).length) {
+          for (j = 0; j < ranked.length && j < 10; j++) {
+            if (ranked[j].score > 28) {
+              setObj[ranked[j].p.id] = true;
+            }
+          }
+        }
+        if (!Object.keys(setObj).length) {
+          renderGrid(null);
+        } else {
+          renderGrid(setObj);
+        }
+      }
+
+      function wireProfileSearch() {
+        var input = document.getElementById("shellSearch");
+        var list = document.getElementById("profileSearchSuggestions");
+        if (!input || !list) {
+          return;
+        }
+        var deb = null;
+        var listIdx = -1;
+
+        function closeList() {
+          list.setAttribute("hidden", "hidden");
+          input.setAttribute("aria-expanded", "false");
+          listIdx = -1;
+        }
+
+        function openList() {
+          list.removeAttribute("hidden");
+          input.setAttribute("aria-expanded", "true");
+        }
+
+        function renderListOptions(query) {
+          var q = String(query || "");
+          var qn = normalizeSearchText(q);
+          if (!qn && document.activeElement === input) {
+            var recent = readRecentSearches();
+            var frag = "";
+            if (recent.length) {
+              frag += '<li class="search-suggestions__label" role="presentation">Recent</li>';
+              var ri;
+              for (ri = 0; ri < recent.length; ri++) {
+                frag +=
+                  '<li role="presentation"><button type="button" class="search-suggestions__item" data-recent="' +
+                  esc(recent[ri]) +
+                  '" role="option"><span class="search-suggestions__item-inner"><span class="search-suggestions__title">' +
+                  esc(recent[ri]) +
+                  '</span><span class="search-suggestions__meta">Search again</span></span></button></li>';
+              }
+            } else {
+              frag +=
+                '<li class="search-suggestions__label" role="presentation">Suggestions</li><li role="presentation"><span class="search-suggestions__item-inner"><span class="search-suggestions__meta">Search studies or law names. Typos are matched loosely.</span></span></li>';
+            }
+            list.innerHTML = frag;
+            openList();
+            return;
+          }
+          var ranked = rankProjectsForSearch(q);
+          var items = ranked.slice(0, 8);
+          var html = '<li class="search-suggestions__label" role="presentation">Studies</li>';
+          var ii;
+          for (ii = 0; ii < items.length; ii++) {
+            var it = items[ii];
+            var active = ii === listIdx ? " search-suggestions__item--active" : "";
+            var meta = esc((it.p.law || "").slice(0, 80));
+            var hint = it.hint ? '<span class="search-suggestions__meta">' + esc(it.hint) + "</span>" : "";
+            html +=
+              '<li role="presentation"><button type="button" class="search-suggestions__item' +
+              active +
+              '" data-pid="' +
+              it.p.id +
+              '" role="option"><span class="search-suggestions__item-inner"><span class="search-suggestions__title">' +
+              esc(it.p.title) +
+              '</span><span class="search-suggestions__meta">' +
+              meta +
+              "</span>" +
+              hint +
+              "</span></button></li>";
+          }
+          if (!items.length && qn) {
+            html +=
+              '<li role="presentation"><span class="search-suggestions__item-inner"><span class="search-suggestions__title">No strong match</span><span class="search-suggestions__meta">Try another spelling.</span></span></li>';
+          }
+          list.innerHTML = html;
+          openList();
+        }
+
+        function scheduleSync() {
+          if (deb) {
+            window.clearTimeout(deb);
+          }
+          deb = window.setTimeout(function () {
+            deb = null;
+            renderListOptions(input.value);
+            applyProfileSearchFilter(input.value);
+          }, 160);
+        }
+
+        input.addEventListener("input", function () {
+          listIdx = -1;
+          scheduleSync();
+        });
+        input.addEventListener("focus", function () {
+          renderListOptions(input.value);
+        });
+        input.addEventListener("blur", function () {
+          window.setTimeout(function () {
+            if (!list.contains(document.activeElement)) {
+              closeList();
+            }
+          }, 160);
+        });
+        list.addEventListener("mousedown", function (e) {
+          if (e.target.closest(".search-suggestions__item[data-pid], .search-suggestions__item[data-recent]")) {
+            e.preventDefault();
+          }
+        });
+        list.addEventListener("click", function (e) {
+          var rec = e.target.closest("[data-recent]");
+          if (rec) {
+            input.value = rec.getAttribute("data-recent") || "";
+            pushRecentSearch(input.value);
+            closeList();
+            applyProfileSearchFilter(input.value);
+            return;
+          }
+          var btn = e.target.closest(".search-suggestions__item[data-pid]");
+          if (!btn) {
+            return;
+          }
+          var id = parseInt(btn.getAttribute("data-pid"), 10);
+          if (!isFinite(id)) {
+            return;
+          }
+          var pk;
+          for (pk = 0; pk < PROJECTS.length; pk++) {
+            if (PROJECTS[pk].id === id) {
+              input.value = PROJECTS[pk].title;
+              break;
+            }
+          }
+          pushRecentSearch(input.value);
+          closeList();
+          var one = Object.create(null);
+          one[id] = true;
+          renderGrid(one);
+          navigate(id, true);
+        });
+        input.addEventListener("keydown", function (e) {
+          if (!list.hidden) {
+            var opts = list.querySelectorAll(
+              ".search-suggestions__item[data-pid], .search-suggestions__item[data-recent]"
+            );
+            var max = opts.length - 1;
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              if (listIdx < 0) {
+                listIdx = 0;
+              } else {
+                listIdx = Math.min(listIdx + 1, max < 0 ? 0 : max);
+              }
+              renderListOptions(input.value);
+              return;
+            }
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              listIdx = Math.max(listIdx - 1, 0);
+              renderListOptions(input.value);
+              return;
+            }
+            if (e.key === "Enter" && listIdx >= 0 && opts[listIdx]) {
+              e.preventDefault();
+              opts[listIdx].click();
+            }
+          }
+          if (e.key === "Escape") {
+            closeList();
+          }
+        });
+        document.addEventListener("click", function (e) {
+          if (!input.contains(e.target) && !list.contains(e.target)) {
+            closeList();
+          }
+        });
+      }
+
+      function hashForProject(id) {
+        return "#project=" + id;
+      }
+
+      function parseProjectFromHash() {
+        var h = window.location.hash || "";
+        var m = h.match(/^#project=(\d+)$/);
+        return m ? parseInt(m[1], 10) : null;
+      }
+
+      function fetchProject(id) {
+        return new Promise(function (resolve) {
+          window.setTimeout(function () {
+            var p = null;
+            for (var j = 0; j < PROJECTS.length; j++) {
+              if (PROJECTS[j].id === id) {
+                p = PROJECTS[j];
+                break;
+              }
+            }
+            resolve(p);
+          }, 0);
+        });
+      }
+
+      function renderGrid(allowedSet) {
+        if (!gridEl) {
+          return;
+        }
+        var html = "";
+        var n = 0;
+        for (var k = 0; k < PROJECTS.length; k++) {
+          var p = PROJECTS[k];
+          if (allowedSet && !allowedSet[p.id]) {
+            continue;
+          }
+          n++;
+          var pos = p.imgPos ? ' style="object-position:' + esc(p.imgPos) + '"' : "";
+          html +=
+            '<button type="button" class="curator-cell" role="listitem" data-project-id="' +
+            p.id +
+            '" aria-label="' +
+            esc(p.title) +
+            '"><span class="curator-cell__frame"><img src="' +
+            esc(p.src) +
+            '" alt="" loading="lazy" decoding="async"' +
+            pos +
+            '"/><span class="curator-cell__play" aria-hidden="true">▶</span></span><span class="curator-cell__law">' +
+            esc(p.law) +
+            "</span></button>";
+        }
+        if (allowedSet && n === 0) {
+          gridEl.innerHTML =
+            '<div class="profile-empty" role="status">No studies match. Try a suggestion or another phrase.</div>';
+          return;
+        }
+        gridEl.innerHTML = html;
+      }
+
+      function renderProjectView(p) {
+        if (!p) return;
+        var heroPos = p.imgPos ? ' style="object-position:' + esc(p.imgPos) + '"' : "";
+        projectHero.innerHTML = '<img src="' + esc(p.heroSrc) + '" alt=""' + heroPos + " />";
+        projectTitle.textContent = p.title;
+        projectLead.textContent = p.lead;
+        projectPhysics.textContent = p.physics;
+        openPlayerBtn.setAttribute("aria-label", "Open " + p.title + " in Player");
+      }
+
+      function setProjectOpen(isOpen) {
+        if (!routerEl || !viewProject) return;
+        if (isOpen) {
+          routerEl.classList.add("is-project");
+          document.body.classList.add("router-project-open");
+          viewProject.setAttribute("aria-hidden", "false");
+        } else {
+          routerEl.classList.remove("is-project");
+          document.body.classList.remove("router-project-open");
+          viewProject.setAttribute("aria-hidden", "true");
+          projectHero.innerHTML = "";
+          currentProjectId = null;
+        }
+      }
+
+      function navigate(id, usePush) {
+        if (usePush === undefined) usePush = true;
+        fetchProject(id).then(function (p) {
+          if (!p) return;
+          currentProjectId = id;
+          renderProjectView(p);
+          setProjectOpen(true);
+          document.title = p.title + " · Yinspire";
+          if (usePush) {
+            window.history.pushState({ view: "project", project: id }, "", hashForProject(id));
+          }
+          btnBack.focus();
+        });
+      }
+
+      function showProfile() {
+        setProjectOpen(false);
+        document.title = "Profile · Yinspire";
+      }
+
+      function onRoute(ev) {
+        var st = ev && ev.state;
+        if (st && st.view === "feed") {
+          showProfile();
+          return;
+        }
+        if (st && st.view === "project" && st.project) {
+          navigate(st.project, false);
+          return;
+        }
+        var fromHash = parseProjectFromHash();
+        if (fromHash != null) {
+          navigate(fromHash, false);
+          return;
+        }
+        showProfile();
+      }
+
+      function wireGrid() {
+        if (!gridEl) return;
+        gridEl.addEventListener("click", function (ev) {
+          var cell = ev.target.closest(".curator-cell[data-project-id]");
+          if (!cell || !gridEl.contains(cell)) return;
+          var id = parseInt(cell.getAttribute("data-project-id"), 10);
+          if (!isFinite(id)) return;
+          navigate(id, true);
+        });
+      }
+
+      function wirePopstate() {
+        window.addEventListener("popstate", onRoute);
+        window.addEventListener("hashchange", function () {
+          var id = parseProjectFromHash();
+          if (id != null) navigate(id, false);
+          else showProfile();
+        });
+      }
+
+      function wireControls() {
+        function back() {
+          window.history.back();
+        }
+        if (btnBack) btnBack.addEventListener("click", back);
+        if (btnClose) btnClose.addEventListener("click", back);
+        function backIfProjectNav(ev) {
+          if (routerEl.classList.contains("is-project")) {
+            if (ev) ev.preventDefault();
+            window.history.back();
+          }
+        }
+        if (navHome) {
+          navHome.addEventListener("click", backIfProjectNav);
+        }
+        if (navProfile) {
+          navProfile.addEventListener("click", backIfProjectNav);
+        }
+        if (headerWorkspace) {
+          headerWorkspace.addEventListener("click", backIfProjectNav);
+        }
+        var wordmark = document.getElementById("wordmark");
+        if (wordmark) {
+          wordmark.addEventListener("click", function (e) {
+            backIfProjectNav(e);
+          });
+        }
+        window.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && routerEl.classList.contains("is-project")) window.history.back();
+        });
+        if (openPlayerBtn) {
+          openPlayerBtn.addEventListener("click", function () {
+            if (currentProjectId == null) return;
+            window.location.href = "env.html?id=" + encodeURIComponent(String(currentProjectId));
+          });
+        }
+        var headerCreateBtn = document.getElementById("headerCreateBtn");
+        if (headerCreateBtn) {
+          headerCreateBtn.addEventListener("click", function () {
+            window.location.href = "create.html";
+          });
+        }
+      }
+
+      function initGravityCloth() {
+        if (window.innerWidth < 768) return;
+        var canvas = document.getElementById("gravity-cloth");
+        if (!canvas) return;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        var COLS = 26;
+        var ROWS = 26;
+        var n = COLS * ROWS;
+        var restX = new Float32Array(n);
+        var restY = new Float32Array(n);
+        var px = new Float32Array(n);
+        var py = new Float32Array(n);
+        var vx = new Float32Array(n);
+        var vy = new Float32Array(n);
+        var fax = new Float32Array(n);
+        var fay = new Float32Array(n);
+        var mw = 1;
+        var mh = 1;
+        var mx = 0;
+        var my = 0;
+
+        function I(ii, jj) {
+          return jj * COLS + ii;
+        }
+
+        function layoutRest() {
+          var pad = 0.08;
+          var x0 = mw * pad;
+          var y0 = mh * pad;
+          var x1 = mw * (1 - pad);
+          var y1 = mh * (1 - pad);
+          var ii;
+          var jj;
+          for (jj = 0; jj < ROWS; jj++) {
+            for (ii = 0; ii < COLS; ii++) {
+              var k = I(ii, jj);
+              restX[k] = x0 + (ii / (COLS - 1)) * (x1 - x0);
+              restY[k] = y0 + (jj / (ROWS - 1)) * (y1 - y0);
+              px[k] = 0;
+              py[k] = 0;
+              vx[k] = 0;
+              vy[k] = 0;
+            }
+          }
+        }
+
+        function resize() {
+          var dpr = Math.min(window.devicePixelRatio || 1, 2);
+          mw = window.innerWidth;
+          mh = window.innerHeight;
+          mx = mw * 0.5;
+          my = mh * 0.45;
+          canvas.width = Math.max(1, Math.floor(mw * dpr));
+          canvas.height = Math.max(1, Math.floor(mh * dpr));
+          canvas.style.width = mw + "px";
+          canvas.style.height = mh + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          layoutRest();
+        }
+
+        function setPtr(e) {
+          var rect = canvas.getBoundingClientRect();
+          mx = e.clientX - rect.left;
+          my = e.clientY - rect.top;
+        }
+
+        window.addEventListener("pointermove", setPtr, { passive: true });
+        window.addEventListener("pointerdown", setPtr, { passive: true });
+
+        var kAnchor = 3;
+        var kStruct = 88;
+        var damping = 0.86;
+        var kMouse = 2;
+        var A = 110;
+        var dt = 0.2;
+        var SUB = 3;
+
+        function step() {
+          var sig = Math.min(mw, mh) * 0.19;
+          var tx = mx;
+          var ty = my;
+          var s;
+          var kk;
+          var ii;
+          var jj;
+          var dx;
+          var dy;
+          var len;
+          var L0;
+          var mag;
+          var inv;
+          var cx;
+          var cy;
+          var r;
+          var gauss;
+          var gx;
+          var gy;
+
+          function springEdge(a, b) {
+            var ax = restX[a] + px[a];
+            var ay = restY[a] + py[a];
+            var bx = restX[b] + px[b];
+            var by = restY[b] + py[b];
+            dx = bx - ax;
+            dy = by - ay;
+            len = Math.sqrt(dx * dx + dy * dy);
+            L0 = Math.sqrt(
+              (restX[b] - restX[a]) * (restX[b] - restX[a]) + (restY[b] - restY[a]) * (restY[b] - restY[a])
+            );
+            if (len < 1e-5) return;
+            inv = 1 / len;
+            mag = kStruct * (len - L0);
+            var sx = mag * dx * inv;
+            var sy = mag * dy * inv;
+            fax[a] += sx;
+            fay[a] += sy;
+            fax[b] -= sx;
+            fay[b] -= sy;
+          }
+
+          for (s = 0; s < SUB; s++) {
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] = 0;
+              fay[kk] = 0;
+            }
+            for (kk = 0; kk < n; kk++) {
+              fax[kk] += -kAnchor * px[kk] - damping * vx[kk];
+              fay[kk] += -kAnchor * py[kk] - damping * vy[kk];
+              cx = restX[kk] + px[kk];
+              cy = restY[kk] + py[kk];
+              dx = tx - cx;
+              dy = ty - cy;
+              r = Math.sqrt(dx * dx + dy * dy);
+              gauss = A * Math.exp(-(r * r) / (2 * sig * sig));
+              if (r > 1e-4) {
+                inv = 1 / r;
+                gx = dx * inv;
+                gy = dy * inv;
+              } else {
+                gx = 0;
+                gy = 0;
+              }
+              fax[kk] += kMouse * gauss * gx;
+              fay[kk] += kMouse * gauss * gy;
+            }
+            for (jj = 0; jj < ROWS; jj++) {
+              for (ii = 0; ii < COLS - 1; ii++) springEdge(I(ii, jj), I(ii + 1, jj));
+            }
+            for (jj = 0; jj < ROWS - 1; jj++) {
+              for (ii = 0; ii < COLS; ii++) springEdge(I(ii, jj), I(ii, jj + 1));
+            }
+            for (kk = 0; kk < n; kk++) {
+              vx[kk] += fax[kk] * dt;
+              vy[kk] += fay[kk] * dt;
+              px[kk] += vx[kk] * dt;
+              py[kk] += vy[kk] * dt;
+            }
+          }
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, mw, mh);
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = "rgba(0,0,0,0.022)";
+          ctx.fillStyle = "rgba(0,0,0,0.04)";
+          var ii;
+          var jj;
+          var a;
+          var b;
+          var pa;
+          var pb;
+
+          function posFor(index) {
+            return { x: restX[index] + px[index], y: restY[index] + py[index] };
+          }
+
+          ctx.beginPath();
+          for (jj = 0; jj < ROWS; jj++) {
+            for (ii = 0; ii < COLS - 1; ii++) {
+              a = I(ii, jj);
+              b = I(ii + 1, jj);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          for (jj = 0; jj < ROWS - 1; jj++) {
+            for (ii = 0; ii < COLS; ii++) {
+              a = I(ii, jj);
+              b = I(ii, jj + 1);
+              pa = posFor(a);
+              pb = posFor(b);
+              ctx.moveTo(pa.x, pa.y);
+              ctx.lineTo(pb.x, pb.y);
+            }
+          }
+          ctx.stroke();
+          for (var pi = 0; pi < n; pi++) {
+            pa = posFor(pi);
+            ctx.beginPath();
+            ctx.arc(pa.x, pa.y, 1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        function loop() {
+          step();
+          draw();
+          window.requestAnimationFrame(loop);
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+        window.requestAnimationFrame(loop);
+      }
+
+      function boot() {
+        renderGrid(null);
+        wireGrid();
+        wireProfileSearch();
+        wirePopstate();
+        wireControls();
+        initGravityCloth();
+
+        var initial = parseProjectFromHash();
+        if (initial != null) {
+          window.history.replaceState({ view: "project", project: initial }, "", hashForProject(initial));
+          navigate(initial, false);
+        } else {
+          window.history.replaceState({ view: "feed" }, "", "profile.html");
+        }
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

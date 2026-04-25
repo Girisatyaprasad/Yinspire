@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <title>Activity · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --apple-grey: #f5f5f7;
+      --label: #86868b;
+      --header-h: 64px;
+      --gutter: 24px;
+      --helv: Helvetica, Arial, "Helvetica Neue", sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--helv);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .shell-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px clamp(16px, 3vw, 32px);
+      min-height: var(--header-h);
+      padding: 10px max(28px, env(safe-area-inset-right)) 10px max(28px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__left {
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+
+    .shell-header__center {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .shell-header__wordmark:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-matrix {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(10px, 1.5vw, 20px);
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .shell-matrix::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shell-matrix__link {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 4px;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-matrix__link:hover {
+      color: var(--muted);
+    }
+
+    .shell-matrix__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-matrix__link:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-search {
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+    }
+
+    .shell-search-hero {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding: 28px var(--gutter) 4px;
+      box-sizing: border-box;
+    }
+
+    .shell-search-hero .shell-search {
+      width: 440px;
+      max-width: min(440px, 100%);
+    }
+
+    .shell-search__input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: #1d1d1f;
+    }
+
+    .shell-search__input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px 12px;
+      min-width: 0;
+    }
+
+    .shell-workspace {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-workspace[aria-current="page"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .shell-header__link--identity {
+      font-size: 14px;
+      padding: 8px 12px;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .shell-header__create {
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .shell-main {
+      padding-top: var(--header-h);
+      min-height: 100vh;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .pulse-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 16px var(--gutter) 100px;
+    }
+
+    .pulse-hero {
+      margin-bottom: 28px;
+    }
+
+    .pulse-hero__eyebrow {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .pulse-hero__title {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+    }
+
+    .pulse-hero__lead {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.45;
+      color: var(--muted);
+      max-width: 48ch;
+    }
+
+    .pulse-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .pulse-stat {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pulse-stat strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .pulse-btn {
+      font-family: var(--helv);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius-g2);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .pulse-btn:hover {
+      border-color: rgba(0, 0, 0, 0.22);
+    }
+
+    .pulse-section__label {
+      margin: 32px 0 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .pulse-section__label:first-of-type {
+      margin-top: 0;
+    }
+
+    .pulse-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .pulse-item {
+      display: grid;
+      grid-template-columns: 10px 1fr auto;
+      gap: 14px 16px;
+      align-items: flex-start;
+      padding: 18px 0;
+      border: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      margin: 0;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .pulse-item:hover {
+      background: rgba(0, 0, 0, 0.02);
+      margin: 0 calc(-1 * var(--gutter));
+      padding-left: var(--gutter);
+      padding-right: var(--gutter);
+      border-radius: var(--radius-g2);
+    }
+
+    .pulse-item:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 2px;
+      border-radius: var(--radius-g2);
+    }
+
+    .pulse-item__dot {
+      width: 8px;
+      height: 8px;
+      margin-top: 6px;
+      border-radius: 50%;
+      background: transparent;
+    }
+
+    .pulse-item--unread .pulse-item__dot {
+      background: #007aff;
+    }
+
+    .pulse-item__title {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .pulse-item__body {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .pulse-item__time {
+      font-size: 12px;
+      color: var(--label);
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+
+    .pulse-badge {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: var(--radius-g2);
+      background: var(--apple-grey);
+      color: var(--ink);
+    }
+
+    .pulse-badge--justice {
+      background: rgba(0, 122, 255, 0.12);
+      color: #007aff;
+    }
+
+    .pulse-badge--team {
+      background: rgba(52, 199, 89, 0.14);
+      color: #248a3d;
+    }
+
+    .pulse-badge--series {
+      background: rgba(175, 82, 222, 0.14);
+      color: #7f3f9f;
+    }
+
+    .pulse-foot {
+      margin-top: 36px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pulse-foot a {
+      color: #007aff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="shell-header" aria-label="Primary">
+    <div class="shell-header__left">
+      <a class="shell-header__wordmark" href="index.html#discovery">Yinspire</a>
+    </div>
+    <div class="shell-header__center">
+      <nav class="shell-matrix" aria-label="The Matrix">
+        <a class="shell-matrix__link" href="index.html#discovery" title="The curated Final standard">Home</a>
+        <a class="shell-matrix__link" href="community.html" title="WIP and social playground">Community</a>
+        <a class="shell-matrix__link" href="collection.html" title="Your collections and series">Library</a>
+        <a class="shell-matrix__link" href="search.html" title="Search Matrix">Search</a>
+        <a class="shell-matrix__link shell-matrix__link--active" href="activity.html" aria-current="page" title="Activity hub">Activity</a>
+        <a class="shell-matrix__link" href="docs.html" title="Laws of Motion">Docs</a>
+      </nav>
+    </div>
+    <div class="shell-header__right">
+      <a href="teams.html" class="shell-workspace" id="headerWorkspace" hidden data-workspace-link>Workspace</a>
+      <a class="shell-header__link--identity" href="profile.html">Profile</a>
+      <button type="button" class="shell-header__create" id="headerCreateBtn">Create</button>
+    </div>
+  </header>
+
+  <script>
+    (function () {
+      var KEY = "yinspire_verified_team_v1";
+      function syncWorkspaceNav() {
+        var el = document.getElementById("headerWorkspace");
+        if (!el) return;
+        var on = false;
+        try {
+          on = !!localStorage.getItem(KEY);
+        } catch (e) {}
+        el.hidden = !on;
+      }
+      syncWorkspaceNav();
+      window.addEventListener("storage", syncWorkspaceNav);
+      window.addEventListener("yinspire-team-changed", syncWorkspaceNav);
+    })();
+  </script>
+
+  <main class="shell-main">
+    <div class="shell-search-hero" role="search">
+      <form class="shell-search" action="search.html" method="get">
+        <label class="visually-hidden" for="shellSearch">Search</label>
+        <input
+          id="shellSearch"
+          name="q"
+          class="shell-search__input"
+          type="search"
+          placeholder="Search projects, physics, intent…"
+          autocomplete="off"
+        />
+      </form>
+    </div>
+    <div class="pulse-wrap">
+      <header class="pulse-hero">
+        <p class="pulse-hero__eyebrow">Retention</p>
+        <h1 class="pulse-hero__title">Activity</h1>
+        <p class="pulse-hero__lead">
+          The pulse of your institution — Justice audits on your work, mentions inside teams, and the moment a Series
+          you follow ships a new standard.
+        </p>
+      </header>
+
+      <div class="pulse-toolbar">
+        <p class="pulse-stat" id="pulseStat"><strong>0</strong> unread</p>
+        <button type="button" class="pulse-btn" id="markRead">Mark all read</button>
+      </div>
+
+      <p class="pulse-section__label">Today</p>
+      <div class="pulse-feed" id="feedToday"></div>
+
+      <p class="pulse-section__label">Earlier</p>
+      <div class="pulse-feed" id="feedEarlier"></div>
+
+      <p class="pulse-foot">
+        Notification delivery is simulated in this shell. Policy references:
+        <a href="docs.html">Laws of Motion</a>.
+      </p>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var READ_KEY = "yinspire_activity_read_ids_v1";
+
+      var ITEMS = [
+        { id: "a1", when: "today", time: "12m", kind: "justice", unread: true, title: "Justice audit queued", body: "“Glass sheet · modal family” enters automated fairness review before Final." },
+        { id: "a2", when: "today", time: "48m", kind: "team", unread: true, title: "Mentioned in #motion-standards", body: "@you — can we inherit your 180 / 0.16 token for the spring deck?" },
+        { id: "a3", when: "today", time: "2h", kind: "series", unread: true, title: "Series update · Spring deck", body: "Episode 04 published — new Justice floor 96.2% for team builds." },
+        { id: "a4", when: "today", time: "5h", kind: "justice", unread: false, title: "Audit complete", body: "“Coastal hero” passed structural symmetry checks. Score 94.1%." },
+        { id: "a5", when: "earlier", time: "Yesterday", kind: "series", unread: false, title: "Library · folder reindexed", body: "Your Series “Bridge physics” picked up two new references from Community." },
+        { id: "a6", when: "earlier", time: "Tue", kind: "team", unread: false, title: "Workspace invite accepted", body: "A new architect joined with @apple.com — standards bundle applied." },
+        { id: "a7", when: "earlier", time: "Mon", kind: "justice", unread: false, title: "Policy reminder", body: "Justice Score weighting for inertial primitives updated — see changelog." }
+      ];
+
+      function readSet() {
+        try {
+          var raw = localStorage.getItem(READ_KEY);
+          var o = raw ? JSON.parse(raw) : {};
+          return o && typeof o === "object" ? o : {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function writeSet(obj) {
+        try {
+          localStorage.setItem(READ_KEY, JSON.stringify(obj));
+        } catch (e) {}
+      }
+
+      function isRead(id) {
+        return !!readSet()[id];
+      }
+
+      function markAllRead() {
+        var s = readSet();
+        var i;
+        for (i = 0; i < ITEMS.length; i++) {
+          s[ITEMS[i].id] = true;
+        }
+        writeSet(s);
+        render();
+      }
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function badge(kind) {
+        if (kind === "justice") return '<span class="pulse-badge pulse-badge--justice">Justice audit</span>';
+        if (kind === "team") return '<span class="pulse-badge pulse-badge--team">Team</span>';
+        return '<span class="pulse-badge pulse-badge--series">Series</span>';
+      }
+
+      function row(it) {
+        var read = isRead(it.id);
+        var unread = it.unread && !read;
+        var cls = "pulse-item" + (unread ? " pulse-item--unread" : "");
+        return (
+          '<button type="button" class="' +
+          cls +
+          '" data-id="' +
+          esc(it.id) +
+          '">' +
+          '<span class="pulse-item__dot" aria-hidden="true"></span>' +
+          "<div>" +
+          '<p class="pulse-item__title">' +
+          esc(it.title) +
+          "</p>" +
+          '<p class="pulse-item__body">' +
+          esc(it.body) +
+          "</p>" +
+          badge(it.kind) +
+          "</div>" +
+          '<time class="pulse-item__time">' +
+          esc(it.time) +
+          "</time></button>"
+        );
+      }
+
+      function render() {
+        var today = document.getElementById("feedToday");
+        var earlier = document.getElementById("feedEarlier");
+        var unread = 0;
+        var tHtml = "";
+        var eHtml = "";
+        var i;
+        for (i = 0; i < ITEMS.length; i++) {
+          var it = ITEMS[i];
+          if (it.unread && !isRead(it.id)) unread++;
+          if (it.when === "today") tHtml += row(it);
+          else eHtml += row(it);
+        }
+        today.innerHTML = tHtml;
+        earlier.innerHTML = eHtml;
+        document.getElementById("pulseStat").innerHTML = "<strong>" + unread + "</strong> unread";
+      }
+
+      document.getElementById("markRead").addEventListener("click", markAllRead);
+      document.getElementById("feedToday").addEventListener("click", function (e) {
+        var a = e.target.closest("button.pulse-item[data-id]");
+        if (!a) return;
+        var id = a.getAttribute("data-id");
+        var s = readSet();
+        s[id] = true;
+        writeSet(s);
+        render();
+      });
+      document.getElementById("feedEarlier").addEventListener("click", function (e) {
+        var a = e.target.closest("button.pulse-item[data-id]");
+        if (!a) return;
+        var id = a.getAttribute("data-id");
+        var s = readSet();
+        s[id] = true;
+        writeSet(s);
+        render();
+      });
+
+      var headerCreateBtn = document.getElementById("headerCreateBtn");
+      if (headerCreateBtn) {
+        headerCreateBtn.addEventListener("click", function () {
+          window.location.href = "create.html";
+        });
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>

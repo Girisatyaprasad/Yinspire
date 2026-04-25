@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="light" />
+  <title>Search Matrix · Yinspire</title>
+  <style>
+    :root {
+      --radius-g2: 8px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --apple-grey: #f5f5f7;
+      --label: #86868b;
+      --header-h: 64px;
+      --gutter: 24px;
+      --helv: Helvetica, Arial, "Helvetica Neue", sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @supports (corner-shape: squircle) {
+      html {
+        corner-shape: squircle;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--helv);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .shell-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px clamp(16px, 3vw, 32px);
+      min-height: var(--header-h);
+      padding: 10px max(28px, env(safe-area-inset-right)) 10px max(28px, env(safe-area-inset-left));
+      padding-top: max(10px, env(safe-area-inset-top));
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__left {
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+
+    .shell-header__center {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell-header__wordmark {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-header__wordmark:hover {
+      opacity: 0.72;
+    }
+
+    .shell-header__wordmark:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-matrix {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px clamp(10px, 1.5vw, 20px);
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .shell-matrix::-webkit-scrollbar {
+      display: none;
+    }
+
+    .shell-matrix__link {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      padding: 8px 4px;
+      color: #1d1d1f;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-matrix__link:hover {
+      color: var(--muted);
+    }
+
+    .shell-matrix__link--active {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .shell-matrix__link:focus-visible {
+      outline: 2px solid #007aff;
+      outline-offset: 3px;
+      border-radius: var(--radius-g2);
+    }
+
+    .shell-search {
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+    }
+
+    .shell-search-hero {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding: 28px var(--gutter) 8px;
+      box-sizing: border-box;
+    }
+
+    .shell-search-hero .shell-search {
+      width: 440px;
+      max-width: min(440px, 100%);
+    }
+
+    .shell-search__input {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: #1d1d1f;
+    }
+
+    .shell-search__input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .shell-header__right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px 12px;
+      min-width: 0;
+    }
+
+    .shell-workspace {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: #ffffff;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .shell-workspace[aria-current="page"] {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-color: #1d1d1f;
+    }
+
+    .shell-header__link--identity {
+      font-size: 14px;
+      padding: 8px 12px;
+      color: #1d1d1f;
+      text-decoration: none;
+    }
+
+    .shell-header__create {
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .shell-main {
+      padding-top: var(--header-h);
+      min-height: 100vh;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* —— Search Matrix page —— */
+    .sm-wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 8px var(--gutter) 80px;
+    }
+
+    .sm-hero {
+      margin-bottom: 32px;
+    }
+
+    .sm-hero__eyebrow {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .sm-hero__title {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+    }
+
+    .sm-hero__lead {
+      margin: 0;
+      max-width: 62ch;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .sm-grid {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) 1fr;
+      gap: 28px 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .sm-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sm-panel {
+      padding: 22px 20px 24px;
+      background: var(--apple-grey);
+      border-radius: var(--radius-g2);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .sm-panel__title {
+      margin: 0 0 16px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .sm-field {
+      margin-bottom: 20px;
+    }
+
+    .sm-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .sm-field label,
+    .sm-field__label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .sm-query {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 15px;
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: var(--radius-g2);
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .sm-query:focus {
+      outline: none;
+      border-color: rgba(0, 0, 0, 0.28);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+    }
+
+    .sm-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .sm-tags label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius-g2);
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sm-tags input {
+      accent-color: #007aff;
+    }
+
+    .sm-range {
+      width: 100%;
+    }
+
+    .sm-range__meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .sm-select {
+      width: 100%;
+      font-family: var(--helv);
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: var(--radius-g2);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      background: #ffffff;
+    }
+
+    .sm-compose {
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border-radius: var(--radius-g2);
+      border: 1px dashed rgba(0, 0, 0, 0.14);
+    }
+
+    .sm-compose__label {
+      margin: 0 0 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .sm-compose__text {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    .sm-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .sm-btn {
+      font-family: var(--helv);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      padding: 11px 20px;
+      border-radius: var(--radius-g2);
+      border: none;
+      background: #000000;
+      color: #ffffff;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .sm-btn:hover {
+      opacity: 0.9;
+    }
+
+    .sm-btn--ghost {
+      background: #ffffff;
+      color: var(--ink);
+      border: 1px solid rgba(0, 0, 0, 0.14);
+    }
+
+    .sm-results__head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .sm-results__title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .sm-results__count {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .sm-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sm-card {
+      display: block;
+      padding: 18px 20px;
+      border-radius: var(--radius-g2);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sm-card:hover {
+      border-color: rgba(0, 0, 0, 0.14);
+      box-shadow: 0 12px 40px -24px rgba(0, 0, 0, 0.18);
+    }
+
+    .sm-card__row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sm-card__title {
+      margin: 0 0 6px;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .sm-card__feel {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--muted);
+      max-width: 52ch;
+    }
+
+    .sm-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .sm-pill {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--apple-grey);
+      color: var(--ink);
+    }
+
+    .sm-pill--justice {
+      background: rgba(0, 122, 255, 0.12);
+      color: #007aff;
+    }
+
+    .sm-empty {
+      padding: 48px 24px;
+      text-align: center;
+      font-size: 15px;
+      color: var(--muted);
+      border-radius: var(--radius-g2);
+      border: 1px dashed rgba(0, 0, 0, 0.1);
+    }
+
+    .sm-foot {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .sm-foot a {
+      color: #007aff;
+      text-decoration: none;
+    }
+
+    .sm-foot a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header class="shell-header" aria-label="Primary">
+    <div class="shell-header__left">
+      <a class="shell-header__wordmark" href="index.html#discovery">Yinspire</a>
+    </div>
+    <div class="shell-header__center">
+      <nav class="shell-matrix" aria-label="The Matrix">
+        <a class="shell-matrix__link" href="index.html#discovery" title="The curated Final standard">Home</a>
+        <a class="shell-matrix__link" href="community.html" title="WIP and social playground">Community</a>
+        <a class="shell-matrix__link" href="collection.html" title="Your collections and series">Library</a>
+        <a class="shell-matrix__link shell-matrix__link--active" href="search.html" aria-current="page" title="Search Matrix">Search</a>
+        <a class="shell-matrix__link" href="activity.html" title="Activity hub">Activity</a>
+        <a class="shell-matrix__link" href="docs.html" title="Laws of Motion">Docs</a>
+      </nav>
+    </div>
+    <div class="shell-header__right">
+      <a href="teams.html" class="shell-workspace" id="headerWorkspace" hidden data-workspace-link>Workspace</a>
+      <a class="shell-header__link--identity" href="profile.html">Profile</a>
+      <button type="button" class="shell-header__create" id="headerCreateBtn">Create</button>
+    </div>
+  </header>
+
+  <script>
+    (function () {
+      var KEY = "yinspire_verified_team_v1";
+      function syncWorkspaceNav() {
+        var el = document.getElementById("headerWorkspace");
+        if (!el) return;
+        var on = false;
+        try {
+          on = !!localStorage.getItem(KEY);
+        } catch (e) {}
+        el.hidden = !on;
+      }
+      syncWorkspaceNav();
+      window.addEventListener("storage", syncWorkspaceNav);
+      window.addEventListener("yinspire-team-changed", syncWorkspaceNav);
+    })();
+  </script>
+
+  <main class="shell-main">
+    <div class="sm-wrap">
+      <div class="shell-search-hero" role="search">
+        <form class="shell-search" action="search.html" method="get">
+          <label class="visually-hidden" for="shellSearch">Search</label>
+          <input
+            id="shellSearch"
+            name="q"
+            class="shell-search__input"
+            type="search"
+            placeholder="Feeling, physics, justice floor…"
+            autocomplete="off"
+          />
+        </form>
+      </div>
+      <header class="sm-hero">
+        <p class="sm-hero__eyebrow">Utility</p>
+        <h1 class="sm-hero__title">Search Matrix</h1>
+        <p class="sm-hero__lead">
+          Retrieval wins the category. Compose intent the way you think it — spring gestures, damping families, Justice
+          floors — then land on the exact feeling in one pass.
+        </p>
+      </header>
+
+      <div class="sm-grid">
+        <form class="sm-panel" id="matrixForm" method="get" action="search.html" aria-labelledby="filterTitle">
+          <input type="hidden" name="q" id="qHidden" value="" />
+          <h2 class="sm-panel__title" id="filterTitle">Intent filters</h2>
+
+          <div class="sm-field">
+            <label for="fieldQ">Semantic query</label>
+            <input class="sm-query" type="search" id="fieldQ" placeholder="e.g. glass momentum, sheet settle…" autocomplete="off" />
+          </div>
+
+          <div class="sm-field">
+            <span class="sm-field__label" id="labInteractions">Interaction paradigm</span>
+            <div class="sm-tags" role="group" aria-labelledby="labInteractions">
+              <label><input type="checkbox" name="spring" value="1" /> Spring</label>
+              <label><input type="checkbox" name="damped" value="1" /> Damped</label>
+              <label><input type="checkbox" name="inertial" value="1" /> Inertial</label>
+              <label><input type="checkbox" name="magnetic" value="1" /> Magnetic</label>
+            </div>
+          </div>
+
+          <div class="sm-field">
+            <label for="justiceMin">Justice floor (minimum score)</label>
+            <input class="sm-range" type="range" id="justiceMin" name="justice" min="0" max="100" value="0" />
+            <div class="sm-range__meta"><span>Permissive</span><span id="justiceVal">0</span><span>Final</span></div>
+          </div>
+
+          <div class="sm-field">
+            <label for="stiffSelect">Stiffness profile</label>
+            <select class="sm-select" id="stiffSelect" name="stiff">
+              <option value="">Any benchmark</option>
+              <option value="180">180 — institutional gold</option>
+              <option value="320">320 — sheet / expo family</option>
+              <option value="90">90 — tap ingress window</option>
+            </select>
+          </div>
+
+          <div class="sm-compose" aria-live="polite">
+            <p class="sm-compose__label">Composed retrieval</p>
+            <p class="sm-compose__text" id="composedLine">Adjust filters to describe what you are looking for.</p>
+          </div>
+
+          <div class="sm-actions">
+            <button type="submit" class="sm-btn">Run matrix</button>
+            <button type="button" class="sm-btn sm-btn--ghost" id="btnReset">Clear</button>
+          </div>
+        </form>
+
+        <section class="sm-results" aria-labelledby="resultsTitle">
+          <div class="sm-results__head">
+            <h2 class="sm-results__title" id="resultsTitle">Matches</h2>
+            <p class="sm-results__count" id="resultCount">—</p>
+          </div>
+          <div class="sm-list" id="resultList"></div>
+          <footer class="sm-foot">
+            Scores are illustrative for this shell. Canonical definitions live in
+            <a href="docs.html">Laws of Motion</a>.
+          </footer>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var CORPUS = [
+        { id: "m1", title: "Justice Spring · Glass sheet", feel: "Weightless hold, slow release, tactile certainty.", tags: ["spring", "damped"], justice: 94, stiff: 180, law: "Hook restoration" },
+        { id: "m2", title: "Magnetic dock · Modal family", feel: "Confident snap, no overshoot guilt.", tags: ["magnetic", "damped"], justice: 91, stiff: 320, law: "Boundary clamp" },
+        { id: "m3", title: "Ingress ripple · Tap surface", feel: "Immediate acknowledgement without jitter.", tags: ["spring", "inertial"], justice: 88, stiff: 90, law: "Ingress window" },
+        { id: "m4", title: "Dismiss expo · Sheet physics", feel: "Gravity-respecting exit, institutional calm.", tags: ["damped", "inertial"], justice: 96, stiff: 320, law: "Expo-out baseline" },
+        { id: "m5", title: "Scroll inertia · Reader chrome", feel: "Paper-like drift, readable deceleration.", tags: ["inertial"], justice: 86, stiff: 180, law: "Mass-normalized drag" },
+        { id: "m6", title: "Justice lattice · Community tile", feel: "Social proof without visual noise.", tags: ["spring", "magnetic"], justice: 92, stiff: 180, law: "Lattice damp" },
+        { id: "m7", title: "Series hero · Stiff bridge", feel: "Cinematic weight on first paint.", tags: ["spring", "damped"], justice: 89, stiff: 180, law: "Bridge stiffness" },
+        { id: "m8", title: "Team WIP gate", feel: "Restricted motion reads as intentional friction.", tags: ["damped"], justice: 97, stiff: 180, law: "Gate token" },
+        { id: "m9", title: "Forge primitive trail", feel: "Debug-visible paths that still feel humane.", tags: ["spring", "inertial"], justice: 84, stiff: 90, law: "Trail opacity budget" },
+        { id: "m10", title: "Profile stat pulse", feel: "Quiet pride — numbers breathe.", tags: ["spring"], justice: 90, stiff: 180, law: "Stat spring" },
+        { id: "m11", title: "Collection folder flip", feel: "Library rhythm, Swiss intervals.", tags: ["magnetic", "damped"], justice: 93, stiff: 180, law: "Folder flip" },
+        { id: "m12", title: "Env player chrome", feel: "Editor-grade density with soft landings.", tags: ["damped", "inertial"], justice: 85, stiff: 320, law: "Chrome separation" }
+      ];
+
+      var form = document.getElementById("matrixForm");
+      var fieldQ = document.getElementById("fieldQ");
+      var qHidden = document.getElementById("qHidden");
+      var shellSearch = document.getElementById("shellSearch");
+      var justice = document.getElementById("justiceMin");
+      var justiceVal = document.getElementById("justiceVal");
+      var stiff = document.getElementById("stiffSelect");
+      var composed = document.getElementById("composedLine");
+      var listEl = document.getElementById("resultList");
+      var countEl = document.getElementById("resultCount");
+      var btnReset = document.getElementById("btnReset");
+      var headerCreateBtn = document.getElementById("headerCreateBtn");
+
+      function selectedTags() {
+        var names = ["spring", "damped", "inertial", "magnetic"];
+        var out = [];
+        var i;
+        for (i = 0; i < names.length; i++) {
+          var cb = form.querySelector('input[name="' + names[i] + '"]');
+          if (cb && cb.checked) {
+            out.push(names[i]);
+          }
+        }
+        return out;
+      }
+
+      function updateComposed() {
+        var parts = [];
+        var tags = selectedTags();
+        if (tags.length) {
+          parts.push(tags.join("-based interactions"));
+        }
+        var j = parseInt(justice.value, 10) || 0;
+        if (j > 0) {
+          parts.push("Justice Score ≥ " + j + "%");
+        }
+        var st = stiff.value;
+        if (st) {
+          parts.push("stiffness benchmark " + st);
+        }
+        var q = (fieldQ.value || "").trim();
+        if (q) {
+          parts.push('semantic cue “' + q + '”');
+        }
+        composed.textContent = parts.length ? parts.join(" · ") : "Adjust filters to describe what you are looking for.";
+      }
+
+      function tokenMatch(text, q) {
+        if (!q) return true;
+        var t = (text || "").toLowerCase();
+        var words = q.toLowerCase().split(/\s+/).filter(Boolean);
+        var w;
+        for (w = 0; w < words.length; w++) {
+          if (t.indexOf(words[w]) === -1) return false;
+        }
+        return true;
+      }
+
+      function runFilter() {
+        var q = (fieldQ.value || "").trim();
+        var j = parseInt(justice.value, 10) || 0;
+        var st = stiff.value ? parseInt(stiff.value, 10) : null;
+        var tags = selectedTags();
+        var out = [];
+        var i;
+        for (i = 0; i < CORPUS.length; i++) {
+          var c = CORPUS[i];
+          if (j && c.justice < j) continue;
+          if (st != null && c.stiff !== st) continue;
+          var okTag = !tags.length;
+          var t;
+          for (t = 0; t < tags.length; t++) {
+            if (c.tags.indexOf(tags[t]) !== -1) {
+              okTag = true;
+              break;
+            }
+          }
+          if (!okTag) continue;
+          var blob = c.title + " " + c.feel + " " + c.law + " " + c.tags.join(" ");
+          if (!tokenMatch(blob, q)) continue;
+          out.push(c);
+        }
+        return out;
+      }
+
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function render() {
+        updateComposed();
+        var rows = runFilter();
+        countEl.textContent = rows.length ? rows.length + " surfacing" : "No surfaces at this threshold";
+        if (!rows.length) {
+          listEl.innerHTML = '<p class="sm-empty">Loosen Justice, clear stiffness, or remove interaction tags — then run again.</p>';
+          return;
+        }
+        var html = "";
+        var i;
+        for (i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var pills = r.tags
+            .map(function (t) {
+              return '<span class="sm-pill">' + esc(t) + "</span>";
+            })
+            .join("");
+          html +=
+            '<a class="sm-card" href="index.html#discovery">' +
+            '<div class="sm-card__row">' +
+            "<div>" +
+            '<h3 class="sm-card__title">' +
+            esc(r.title) +
+            "</h3>" +
+            '<p class="sm-card__feel">' +
+            esc(r.feel) +
+            "</p>" +
+            '<div class="sm-card__meta">' +
+            pills +
+            '<span class="sm-pill sm-pill--justice">Justice ' +
+            esc(String(r.justice)) +
+            "%</span>" +
+            '<span class="sm-pill">k=' +
+            esc(String(r.stiff)) +
+            "</span>" +
+            '<span class="sm-pill">' +
+            esc(r.law) +
+            "</span></div></div></a>";
+        }
+        listEl.innerHTML = html;
+      }
+
+      function readParams() {
+        var p;
+        try {
+          p = new URLSearchParams(window.location.search);
+        } catch (e) {
+          p = new URLSearchParams();
+        }
+        var qv = p.get("q") || "";
+        fieldQ.value = qv;
+        if (qHidden) qHidden.value = qv;
+        if (shellSearch) shellSearch.value = qv;
+        justice.value = p.get("justice") || "0";
+        justiceVal.textContent = justice.value;
+        stiff.value = p.get("stiff") || "";
+        ["spring", "damped", "inertial", "magnetic"].forEach(function (n) {
+          var cb = form.querySelector('input[name="' + n + '"]');
+          if (cb) cb.checked = p.get(n) === "1";
+        });
+      }
+
+      function syncShellFromField() {
+        if (qHidden) qHidden.value = fieldQ.value;
+        if (shellSearch) shellSearch.value = fieldQ.value;
+      }
+
+      justice.addEventListener("input", function () {
+        justiceVal.textContent = justice.value;
+        updateComposed();
+      });
+      form.addEventListener("change", function () {
+        updateComposed();
+      });
+      fieldQ.addEventListener("input", function () {
+        syncShellFromField();
+        updateComposed();
+      });
+      if (shellSearch) {
+        shellSearch.addEventListener("input", function () {
+          fieldQ.value = shellSearch.value;
+          if (qHidden) qHidden.value = fieldQ.value;
+          updateComposed();
+        });
+      }
+      form.addEventListener("submit", function () {
+        syncShellFromField();
+      });
+      btnReset.addEventListener("click", function () {
+        fieldQ.value = "";
+        if (qHidden) qHidden.value = "";
+        if (shellSearch) shellSearch.value = "";
+        justice.value = "0";
+        justiceVal.textContent = "0";
+        stiff.value = "";
+        var cbs = form.querySelectorAll('.sm-tags input[type="checkbox"]');
+        var i;
+        for (i = 0; i < cbs.length; i++) cbs[i].checked = false;
+        history.replaceState(null, "", "search.html");
+        render();
+      });
+      if (headerCreateBtn) {
+        headerCreateBtn.addEventListener("click", function () {
+          window.location.href = "create.html";
+        });
+      }
+
+      readParams();
+      render();
+    })();
+  </script>
+</body>
+</html>
